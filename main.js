@@ -1,11 +1,12 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
-const { Client, Collection, Intents } = require('discord.js');
+const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
 const { token } = require('./config.json');
 const malScraper = require('mal-scraper');
 const mongoose = require('mongoose');
 const prefixCommand = require('./command');
 const { prefix } = require('./config.json');
+const Data = require("./models/data.js")
 
 
 mongoose.connect('mongodb+srv://spark2x:FH8UljIyKXuZB4vM@cluster0.h4s7e.mongodb.net/test', { useNewUrlParser: true, useUnifiedTopology: true })
@@ -55,10 +56,43 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('messageCreate', (message) => {
+
+
+
     if (message.content === prefix + 'ping') {
         message.reply({
             content: 'pong',
         })
+    }
+
+    if (message.content === prefix + 'test') {
+        let cardPhoto = 'https://static.wikia.nocookie.net/rezero/images/3/3a/RemP.png/revision/latest/top-crop/width/360/height/450?cb=20161224170255&path-prefix=pt-br'
+        let cardName = 'Rem'
+        let cardCode = 'oqk531'
+        let cardAnimeFrom = 'Re:Zero'
+        let cardStars = ':star: :star: :star: :star:'
+        let cardAttack = '79'
+        let cardDefense = '57'
+        let cardIntelligence = '238'
+        const exampleEmbed = new MessageEmbed()
+            .setColor("#fa5700")
+            .setTitle(cardName)
+            .setURL(`https://myanimelist.net/character.php?cat=character&q=${cardName}`)
+            .setAuthor(`${cardCode} owned by ${message.author.username}`)
+            .setDescription(`__${cardAnimeFrom}__`)
+            .setThumbnail(message.author.avatarURL())
+            .addFields(
+                { name: 'Stars', value: cardStars },
+                { name: '\u200b', value: '\u200b', inline: false},
+                { name: 'Ataque     ', value: `***${cardAttack}***`, inline: true },
+                { name: 'Defesa     ', value:  `***${cardDefense}***`, inline: true },
+                { name: 'Inteligência     ', value: `***${cardIntelligence}***`, inline: true },
+            )
+            .setImage(cardPhoto)
+            .setTimestamp()
+            .setFooter(message.author.tag, message.author.avatarURL());
+        var cardInfo = { embeds: [exampleEmbed] }
+        message.reply(cardInfo)
     }
 })
 client.login(token);
