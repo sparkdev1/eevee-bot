@@ -9,6 +9,7 @@ const dataSchema = mongoose.Schema({
     cardDefense: String,
     cardIntelligence: String,
     cardDateGet: String,
+    cardPhoto: String,
 })
 
 module.exports = mongoose.model("Card", dataSchema);
