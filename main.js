@@ -1,6 +1,6 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
-const { Client, Collection, Intents, MessageEmbed } = require('discord.js');
+const { Client, Collection, Intents, MessageEmbed, MessageAttachment } = require('discord.js');
 const { token } = require('./config.json');
 const malScraper = require('mal-scraper');
 const mongoose = require('mongoose');
@@ -11,7 +11,7 @@ const card = require('./models/card.js');
 
 
 mongoose.connect('mongodb+srv://spark2x:FH8UljIyKXuZB4vM@cluster0.h4s7e.mongodb.net/eevee?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
-console.log('Conected to MongoDB')
+console.log('Successfully connected to MongoDB')
     // Create a new client instance
 const client = new Client({
     intents: [
@@ -132,9 +132,91 @@ client.on('messageCreate', (message) => {
         }
     }
 
-    if (command === 'bag') {
-        const Data = require("./models/data.js")
+    if (command === 'drop' || command === 'd') {
 
+
+        //random anime character with AniList API
+        const anilist = require('anilist-node');
+        const Anilist = new anilist();
+
+        //Anilist.media.anime(21708).then(data => {
+        //     console.log(data);
+        // });
+        function getRandomCharacter(min, max) {
+            return Math.ceil(Math.random() * (max - min) + min);
+        }
+
+
+        
+        let characterID = getRandomCharacter(1,200);
+        let characterID2 = getRandomCharacter(1,200);
+        let characterID3 = getRandomCharacter(1,200);
+        var drop = []
+        Anilist.people.character(characterID).then(data => {
+            if(data.status == 404){}
+            drop.push({'name': data.name.english, 'image': data.image.large, 'animeTitle': data.media['0'].title.english});
+            
+            Anilist.people.character(characterID2).then(data2 => {
+                console.log(data2)
+                drop.push({'name': data2.name.english, 'image': data2.image.large, 'animeTitle': data2.media['0'].title.english});
+
+                Anilist.people.character(characterID3).then(data3 => {
+                    console.log(data3)
+                    drop.push({'name': data3.name.english, 'image': data3.image.large, 'animeTitle': data3.media['0'].title.english});
+                    console.log(drop)
+                    
+                    
+                    
+                    //image drop creation with canvas
+                    const { createCanvas, loadImage } = require('canvas')
+                    const canvas = createCanvas(1900, 1000)
+                    const ctx = canvas.getContext('2d')
+                    
+                    // Draw cat with lime helmet
+                    loadImage('images/background2.jpg').then((background) => {
+                        
+                        ctx.drawImage(background, 50, 100, 500, 800)
+                        
+                        loadImage(drop[0].image).then((background)=> {ctx.drawImage(background, null, null, 1700, 1000)
+                        
+                        loadImage(drop[1].image).then((character2)=>{ctx.drawImage(character2, 600, 100, 500, 800)
+                        
+                        loadImage(drop[2].image).then((character3)=>{ctx.drawImage(character3, 1150, 100, 500, 800)
+                        
+                        ctx.font = '60px Impact'
+                        ctx.fillStyle = "#FFFFFF";
+                        ctx.fillText(drop[0].name, 100, 80, 400)
+                        ctx.fillText(drop[1].name, 650, 80, 400)
+                        ctx.fillText(drop[2].name, 1200, 80, 400)
+                        ctx.fillText(drop[0].animeTitle, 100, 980, 400)
+                        ctx.fillText(drop[1].animeTitle, 650, 980, 400)
+                        ctx.fillText(drop[2].animeTitle, 1200, 980, 400)
+            
+            const fs = require('fs')
+            const out = fs.createWriteStream(__dirname + '/drop.png')
+            const stream = canvas.createPNGStream()
+            stream.pipe(out)
+            out.on('finish', () =>  console.log('The Drop PNG file was created.'))
+            
+            
+            
+            const attachment = new MessageAttachment(__dirname + '/test.png');
+            const exampleEmbed = new MessageEmbed()
+            .setColor("#fa5700")
+            .setTitle('Test Drop')
+            .setImage('attachment://test.png'); 
+            var drop = { embeds: [exampleEmbed], files:[attachment] }
+            return message.reply(drop)
+        })})})
+    })
+    }) 
+    })
+    })
+        }
+        
+        if (command === 'bag') {
+        const Data = require("./models/data.js")
+        
         if (args[0]) {
             const user = getUserFromMention(args[0]);
             Data.findOne({
