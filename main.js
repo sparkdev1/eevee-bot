@@ -71,7 +71,7 @@ client.on('messageCreate', (message) => {
         return message.channel.send(`${user.username}'s avatar: ${user.displayAvatarURL({ dynamic: true })}`);
     }
 
-    if (command === 'view') {
+    if (command === 'view' || command === 'v') {
         const Card = require("./models/card.js")
         if (args[0]) {
             const code = args[0]
@@ -139,6 +139,7 @@ client.on('messageCreate', (message) => {
         const anilist = require('anilist-node');
         const Anilist = new anilist();
 
+
         //Anilist.media.anime(21708).then(data => {
         //     console.log(data);
         // });
@@ -147,76 +148,89 @@ client.on('messageCreate', (message) => {
         }
 
 
-        
-        let characterID = getRandomCharacter(1,200);
-        let characterID2 = getRandomCharacter(1,200);
-        let characterID3 = getRandomCharacter(1,200);
+
+        let characterID = getRandomCharacter(1, 200);
+        let characterID2 = getRandomCharacter(1, 200);
+        let characterID3 = getRandomCharacter(1, 200);
         var drop = []
         Anilist.people.character(characterID).then(data => {
-            if(data.status == 404){}
-            drop.push({'name': data.name.english, 'image': data.image.large, 'animeTitle': data.media['0'].title.english});
-            
+            if (data.status == 404) {}
+            drop.push({ 'name': data.name.english, 'image': data.image.large, 'animeTitle': data.media['0'].title.english });
+
             Anilist.people.character(characterID2).then(data2 => {
-                console.log(data2)
-                drop.push({'name': data2.name.english, 'image': data2.image.large, 'animeTitle': data2.media['0'].title.english});
+
+                drop.push({ 'name': data2.name.english, 'image': data2.image.large, 'animeTitle': data2.media['0'].title.english });
 
                 Anilist.people.character(characterID3).then(data3 => {
-                    console.log(data3)
-                    drop.push({'name': data3.name.english, 'image': data3.image.large, 'animeTitle': data3.media['0'].title.english});
-                    console.log(drop)
-                    
-                    
-                    
+
+                    drop.push({ 'name': data3.name.english, 'image': data3.image.large, 'animeTitle': data3.media['0'].title.english });
+
+
                     //image drop creation with canvas
-                    const { createCanvas, loadImage } = require('canvas')
+                    const { createCanvas, loadImage, registerFont } = require('canvas')
+                    registerFont('custom-fonts/PublicSans-Regular.otf', { family: 'Public Sans' })
                     const canvas = createCanvas(1900, 1000)
                     const ctx = canvas.getContext('2d')
-                    
-                    // Draw cat with lime helmet
+
+                    // Draw drop image
                     loadImage('images/background2.jpg').then((background) => {
-                        
-                        ctx.drawImage(background, 50, 100, 500, 800)
-                        
-                        loadImage(drop[0].image).then((background)=> {ctx.drawImage(background, null, null, 1700, 1000)
-                        
-                        loadImage(drop[1].image).then((character2)=>{ctx.drawImage(character2, 600, 100, 500, 800)
-                        
-                        loadImage(drop[2].image).then((character3)=>{ctx.drawImage(character3, 1150, 100, 500, 800)
-                        
-                        ctx.font = '60px Impact'
-                        ctx.fillStyle = "#FFFFFF";
-                        ctx.fillText(drop[0].name, 100, 80, 400)
-                        ctx.fillText(drop[1].name, 650, 80, 400)
-                        ctx.fillText(drop[2].name, 1200, 80, 400)
-                        ctx.fillText(drop[0].animeTitle, 100, 980, 400)
-                        ctx.fillText(drop[1].animeTitle, 650, 980, 400)
-                        ctx.fillText(drop[2].animeTitle, 1200, 980, 400)
-            
-            const fs = require('fs')
-            const out = fs.createWriteStream(__dirname + '/drop.png')
-            const stream = canvas.createPNGStream()
-            stream.pipe(out)
-            out.on('finish', () =>  console.log('The Drop PNG file was created.'))
-            
-            
-            
-            const attachment = new MessageAttachment(__dirname + '/test.png');
-            const exampleEmbed = new MessageEmbed()
-            .setColor("#fa5700")
-            .setTitle('Test Drop')
-            .setImage('attachment://test.png'); 
-            var drop = { embeds: [exampleEmbed], files:[attachment] }
-            return message.reply(drop)
-        })})})
-    })
-    }) 
-    })
-    })
-        }
-        
-        if (command === 'bag') {
+
+                        ctx.drawImage(background, null, null, 1900, 1000)
+
+                        loadImage(drop[0].image).then((character1, dropInfo = drop) => {
+                            ctx.drawImage(character1, 50, 100, 500, 800)
+
+
+                            loadImage(drop[1].image).then((character2) => {
+                                ctx.drawImage(character2, 700, 100, 500, 800)
+
+                                loadImage(drop[2].image).then((character3) => {
+
+                                    ctx.drawImage(character3, 1350, 100, 500, 800)
+
+                                    ctx.font = '70px Public Sans'
+                                    ctx.fillStyle = "#FFFFFF";
+                                    ctx.fillText(dropInfo['0'].name, 100, 80, 400)
+                                    ctx.fillText(dropInfo['1'].name, 750, 80, 400)
+                                    ctx.fillText(dropInfo['2'].name, 1400, 80, 400)
+                                    ctx.fillText(dropInfo['0'].animeTitle, 100, 980, 450)
+                                    ctx.fillText(dropInfo['1'].animeTitle, 750, 980, 450)
+                                    ctx.fillText(dropInfo['2'].animeTitle, 1350, 980, 450)
+
+                                    const fs = require('fs')
+                                    const out = fs.createWriteStream(__dirname + '/drop.png')
+                                    const stream = canvas.createPNGStream()
+                                    stream.pipe(out)
+                                    out.on('finish', () => console.log('The Drop PNG file was created.'))
+
+
+                                    const user = message.author
+                                    const attachment = new MessageAttachment(__dirname + '/drop.png');
+                                    const exampleEmbed = new MessageEmbed()
+                                        .setColor("#fa5700")
+                                        .setTitle('Test Drop')
+                                        .setImage('attachment://drop.png');
+                                    var drop = { embeds: [exampleEmbed], files: [attachment] }
+                                    message.channel.send(`Dropando 3 cartas, boa sorte ${user}!`)
+                                    console.log('Send Drop')
+                                    return message.reply(drop)
+
+
+
+
+
+                                })
+                            })
+                        })
+                    })
+                })
+            })
+        })
+    }
+
+    if (command === 'bag') {
         const Data = require("./models/data.js")
-        
+
         if (args[0]) {
             const user = getUserFromMention(args[0]);
             Data.findOne({
