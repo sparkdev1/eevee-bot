@@ -1,16 +1,16 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
 const { Client, Collection, Intents, MessageEmbed, MessageAttachment } = require('discord.js');
-const { token } = require('./config.json');
+const { token, prefix, mongoConst } = require('./config.json');
 const malScraper = require('mal-scraper');
 const mongoose = require('mongoose');
 const prefixCommand = require('./command');
-const { prefix } = require('./config.json');
 const Data = require("./models/data.js");
 const card = require('./models/card.js');
+const { send } = require('process');
 
 
-mongoose.connect('mongodb+srv://spark2x:FH8UljIyKXuZB4vM@cluster0.h4s7e.mongodb.net/eevee?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoConst, { useNewUrlParser: true, useUnifiedTopology: true })
 console.log('Successfully connected to MongoDB')
     // Create a new client instance
 const client = new Client({
@@ -86,10 +86,7 @@ client.on('messageCreate', (message) => {
                     return message.reply('Por favor, utilize código de card válido');
                 }
                 client.users.fetch(data.userID).then((user) => {
-                    let cardPhoto = data.cardPhoto
-                    let cardName = data.cardName
-                    let cardNameURL = cardName.replace(/[^A-Z0-9]+/ig, "+")
-                    let cardCode = data.cardID
+                    let cardNameURL = data.cardName.replace(/[^A-Z0-9]+/ig, "+")
                     let cardAnimeFrom = 'Anime Name'
                     switch (data.cardStars) {
                         case "1":
@@ -113,16 +110,17 @@ client.on('messageCreate', (message) => {
                     let cardIntelligence = data.cardIntelligence
                     const exampleEmbed = new MessageEmbed()
                         .setColor("#fa5700")
-                        .setTitle(cardName)
+                        .setTitle(data.cardName)
                         .setURL(`https://myanimelist.net/character.php?cat=character&q=${cardNameURL}`)
-                        .setAuthor(`${cardCode} owned by ${user.username}`)
+                        .setAuthor(`${data.cardID} owned by ${user.username}`)
                         .setDescription(`__${cardAnimeFrom}__`)
                         .setThumbnail(user.avatarURL())
                         .addFields({ name: 'Stars', value: cardStarsE }, { name: '\u200b', value: '\u200b', inline: false }, { name: 'Ataque     ', value: `***:crossed_swords: ${cardAttack}***`, inline: true }, { name: 'Defesa     ', value: `***:shield: ${cardDefense}***`, inline: true }, { name: 'Inteligência     ', value: `***:books: ${cardIntelligence}***`, inline: true }, )
-                        .setImage(cardPhoto)
+                        .setImage(data.cardPhoto)
                         .setTimestamp()
                         .setFooter(user.tag, user.avatarURL());
                     var cardInfo = { embeds: [exampleEmbed] }
+                    console.log (`${user.tag} viewed a card`)
                     return message.reply(cardInfo)
                 })
             });
@@ -136,36 +134,35 @@ client.on('messageCreate', (message) => {
 
 
         //random anime character with AniList API
+        function getRandomCharacter(min, max) {
+            return Math.ceil(Math.random() * (max - min) + min);
+        }
         const anilist = require('anilist-node');
         const Anilist = new anilist();
 
 
-        //Anilist.media.anime(21708).then(data => {
-        //     console.log(data);
-        // });
-        function getRandomCharacter(min, max) {
-            return Math.ceil(Math.random() * (max - min) + min);
-        }
-
-
-
-        let characterID = getRandomCharacter(1, 200);
-        let characterID2 = getRandomCharacter(1, 200);
-        let characterID3 = getRandomCharacter(1, 200);
         var drop = []
-        Anilist.people.character(characterID).then(data => {
-            if (data.status == 404) {}
-            drop.push({ 'name': data.name.english, 'image': data.image.large, 'animeTitle': data.media['0'].title.english });
-
-            Anilist.people.character(characterID2).then(data2 => {
-
-                drop.push({ 'name': data2.name.english, 'image': data2.image.large, 'animeTitle': data2.media['0'].title.english });
-
-                Anilist.people.character(characterID3).then(data3 => {
-
-                    drop.push({ 'name': data3.name.english, 'image': data3.image.large, 'animeTitle': data3.media['0'].title.english });
-
-
+        
+        
+        Anilist.people.character(getRandomCharacter(1,250000)).then(data => {
+            Anilist.people.character(getRandomCharacter(1, 250000)).then(data2 => {
+                Anilist.people.character(getRandomCharacter(1, 250000)).then(data3 => {
+                    if (Array.isArray(data)) {
+                        drop.push({ 'name': 'LUCKY DROP!', 'image': './images/lucky.png', 'animeTitle': 'Boa sorte rs' });
+                    } else {
+                        drop.push({ 'name': (data.name.english), 'image': data.image.large, 'animeTitle': data.media['0'].title.userPreferred });
+                    }
+                    if (Array.isArray(data2)) {
+                        drop.push({ 'name': 'LUCKY DROP!', 'image': './images/lucky.png', 'animeTitle': 'Boa sorte rs' });
+                    } else {
+                        drop.push({ 'name': data2.name.english, 'image': data2.image.large, 'animeTitle': data2.media['0'].title.userPreferred });
+                    }
+                    if (Array.isArray(data3)) {
+                        drop.push({ 'name': 'LUCKY DROP!', 'image': './images/lucky.png', 'animeTitle': 'Boa sorte rs' });
+                    } else {
+                        drop.push({ 'name': data3.name.english, 'image': data3.image.large, 'animeTitle': data3.media['0'].title.userPreferred });
+                    }
+                    message.reply(`Estou dropando 3 cartas, boa sorte ${message.author}!`)
                     //image drop creation with canvas
                     const { createCanvas, loadImage, registerFont } = require('canvas')
                     registerFont('custom-fonts/PublicSans-Regular.otf', { family: 'Public Sans' })
@@ -203,18 +200,17 @@ client.on('messageCreate', (message) => {
                                     stream.pipe(out)
                                     out.on('finish', () => console.log('The Drop PNG file was created.'))
 
-
-                                    const user = message.author
                                     const attachment = new MessageAttachment(__dirname + '/drop.png');
-                                    const exampleEmbed = new MessageEmbed()
-                                        .setColor("#fa5700")
-                                        .setTitle('Test Drop')
-                                        .setImage('attachment://drop.png');
-                                    var drop = { embeds: [exampleEmbed], files: [attachment] }
-                                    message.channel.send(`Dropando 3 cartas, boa sorte ${user}!`)
                                     console.log('Send Drop')
-                                    return message.reply(drop)
-
+                                    message.channel.send({files: [attachment]}).then(sendMessage => {
+                                        sendMessage.react("1️⃣")
+                                        sendMessage.react("2️⃣")
+                                        sendMessage.react("3️⃣")
+                                        setTimeout(function(){
+                                            sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
+                                        }, 30000)
+                                    })
+                                    
 
 
 
