@@ -27,7 +27,7 @@ client.on('messageCreate', async (message) => {
 
     if (command === 'view') {
         if (args[0]) 
-            return message.reply(cards.createCardTemplate(args[0], client))
+            return message.reply(card.createDropTemplate(args[0], client))
         
         return message.reply('Insira o __código__ do card que gostaria de ver')
     }
