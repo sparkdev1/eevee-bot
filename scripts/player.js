@@ -14,17 +14,17 @@ const getUserFromMention = (mention, client) => {
     }
 }
 
-const playerBalance = (player = '', message , client) => {
+const playerBalance = (player = '', message, client) => {
 
     if (player != '') {
         player = getUserFromMention(player, client);
 
-        if (!player) 
-            return 'Por favor, utilize alguma menção válida'
+        if (!player)
+            message.reply('Por favor, utilize alguma menção válida')
+
     } else
         player = message.author
 
-    let finalMessage = 'fds'
     Data.findOne({
         userID: player.id
     }, (err, data) => {
@@ -39,12 +39,13 @@ const playerBalance = (player = '', message , client) => {
                 daily: 0,
             })
             newData.save().catch(err => console.log(err));
-            finalMessage = `${player.username} tem :moneybag: 0 gold.`
-        } 
+            message.reply(`${player.username} tem :moneybag: 0 gold.`)
+            continue;
+        } else
 
-        finalMessage = `${player.username} tem :moneybag: ${data.money} gold.`
-    })  
-    return finalMessage 
+            message.reply(`${player.username} tem :moneybag: ${data.money} gold.`)
+
+    })
 }
 
 

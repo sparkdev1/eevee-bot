@@ -28,7 +28,7 @@ for (const file of eventFiles) {
         client.on(event.name, (...args) => event.execute(...args));
     }
 }
-client.on('messageCreate', async (message) => {
+client.on('messageCreate', async(message) => {
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
@@ -43,7 +43,7 @@ client.on('messageCreate', async (message) => {
 
     if (command === 'drop' || command === 'd') {
         const drop = []
-        drop.push(await char.getCharFromMAL())                  
+        drop.push(await char.getCharFromMAL())
 
         // sleep
         message.reply(`Estou dropando 3 cartas, boa sorte ${message.author}!`)
@@ -51,14 +51,14 @@ client.on('messageCreate', async (message) => {
             sendMessage.react("1️⃣")
             sendMessage.react("2️⃣")
             sendMessage.react("3️⃣")
-            setTimeout(function(){
+            setTimeout(function() {
                 sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
             }, 30000)
         })
     }
 
     if (command === 'bag') {
-        return message.reply(await player.playerBalance(args[0], message, client))
+        return await player.playerBalance(args[0], message, client)
     }
 });
 
