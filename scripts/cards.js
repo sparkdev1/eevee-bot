@@ -2,17 +2,17 @@ const { Client, Collection, Intents, MessageEmbed, MessageAttachment } = require
 const Card = require('../models/card.js')
 const { createCanvas, loadImage, registerFont } = require('canvas')
 
-const searchSpecificCard = (code, client) => {
+const searchSpecificCard = (code, client, message) => {
     Card.findOne({
         cardID: code
     }, (err, data) => {
         if (err) console.log(err);
 
         if (!data) {
-             return value = 'Por favor, utilize código de card válido'
+            return message.reply('Por favor, utilize código de card válido')
         }
         if (!code) {
-            return value = 'Por favor, utilize código de card válido'
+            return message.reply('Por favor, utilize código de card válido')
         }
         client.users.fetch(data.userID).then((user) => {
             let cardPhoto = data.cardPhoto
@@ -41,10 +41,9 @@ const searchSpecificCard = (code, client) => {
                 .setImage(cardPhoto)
                 .setTimestamp()
                 .setFooter(user.tag, user.avatarURL());
-            return value = { embeds: [exampleEmbed] }
+                message.reply({ embeds: [exampleEmbed] })
         })
     });
-    return this.Card.findOne()
 }
 
 const createDropTemplate = async (drop) => {

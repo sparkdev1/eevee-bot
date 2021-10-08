@@ -40,7 +40,6 @@ const playerBalance = (player = '', message, client) => {
             })
             newData.save().catch(err => console.log(err));
             message.reply(`${player.username} tem :moneybag: 0 gold.`)
-            continue;
         } else
 
             message.reply(`${player.username} tem :moneybag: ${data.money} gold.`)

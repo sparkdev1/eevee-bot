@@ -36,7 +36,7 @@ client.on('messageCreate', async(message) => {
 
     if (command === 'view' || command === 'v') {
         if (args[0]) {
-            return message.reply(card.searchSpecificCard(args[0], client))
+            return (card.searchSpecificCard(args[0], client, message))
         }
         return message.reply('Insira o __código__ do card que gostaria de ver')
     }
