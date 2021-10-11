@@ -20,13 +20,13 @@ const searchSpecificCard = (code, client, message) => {
             let cardNameURL = cardName.replace(/[^A-Z0-9]+/ig, "+")
             let cardCode = data.cardID
             let cardAnimeFrom = 'Anime Name'
-    
+
             let cardStarsE = ''
-    
+
             for (let i = 1; i <= data.cardStars; i++) {
                 cardStarsE += ":star: "
             }
-    
+
             let cardAttack = data.cardAttack
             let cardDefense = data.cardDefense
             let cardIntelligence = data.cardIntelligence
@@ -41,12 +41,12 @@ const searchSpecificCard = (code, client, message) => {
                 .setImage(cardPhoto)
                 .setTimestamp()
                 .setFooter(user.tag, user.avatarURL());
-                message.reply({ embeds: [exampleEmbed] })
+            message.reply({ embeds: [exampleEmbed] })
         })
     });
 }
 
-const createDropTemplate = async (drop) => {
+const createDropTemplate = async(drop) => {
     const canvas = createCanvas(1900, 1000)
     registerFont('./custom-fonts/PublicSans-Regular.otf', { family: 'Public Sans' })
     const ctx = canvas.getContext('2d')
@@ -55,7 +55,7 @@ const createDropTemplate = async (drop) => {
     ctx.drawImage(await loadImage(drop[0][0].image), 50, 100, 500, 800)
     ctx.drawImage(await loadImage(drop[0][1].image), 700, 100, 500, 800)
     ctx.drawImage(await loadImage(drop[0][2].image), 1350, 100, 500, 800)
-    
+
     ctx.font = '70px Public Sans'
     ctx.fillStyle = "#FFFFFF";
 
@@ -71,11 +71,11 @@ const createDropTemplate = async (drop) => {
     const out = fs.createWriteStream(__dirname + '/drop.png')
     const stream = canvas.createPNGStream()
     stream.pipe(out)
-    out.on('finish', () =>  console.log('The Drop PNG file was created.'))
+    out.on('finish', () => console.log('The Drop PNG file was created.'))
 
     const attachment = new MessageAttachment(__dirname + '/drop.png');
 
-    return { files:[attachment] }
+    return { files: [attachment] }
 }
 
 module.exports.searchSpecificCard = searchSpecificCard

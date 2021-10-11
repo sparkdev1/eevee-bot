@@ -6,16 +6,16 @@ import fetch from 'node-fetch'
 // });
 function getRandomCharacter(min, max) {
     return Math.ceil(Math.random() * (max - min) + min);
-  }
-  var randomInt = 4;
+}
+var randomInt = 4;
 
 
-  
+
 // let characterID = getRandomCharacter(1,50000);
 // var drop = []
 // Anilist.people.character(73935).then(data => {
 //     drop.push({'name': data.name.english, 'image': data.image.large, 'animeTitle': data.media['0'].title.english});
-    
+
 //     Anilist.people.character(17).then(data2 => {
 //         drop.push({'name': data2.name.english, 'image': data2.image.large, 'animeTitle': data2.media['0'].title.english});
 
@@ -28,19 +28,27 @@ function getRandomCharacter(min, max) {
 
 // Here we define our query as a multi-line string
 // Storing it in a separate .graphql/.gql file is also possible
+var randomInt = getRandomCharacter(1, 200)
+
 var query = `
-query {
-    Page (page: 161, perPage: 1) {
+query ($randomInt: Int){
+    Page (page: $randomInt, perPage: 1) {
       pageInfo {
         total
       }
-      media(type: ANIME) {
+      media(type: ANIME, sort: FAVOURITES) {
+        title {
+            romaji
+        }
         characters (sort: ID){
             edges{
                 node {
                     name {
                         first
                         last
+                    }
+                    image {
+                        large
                     }
                 }
             }
@@ -52,8 +60,10 @@ query {
 
 // Define our query variables and values that will be used in the query request
 
-
-// Define the config we'll need for our Api request
+var variables = {
+        randomInt: randomInt
+    }
+    // Define the config we'll need for our Api request
 var url = 'https://graphql.anilist.co',
     options = {
         method: 'POST',
@@ -62,76 +72,32 @@ var url = 'https://graphql.anilist.co',
             'Accept': 'application/json',
         },
         body: JSON.stringify({
-            query: query
+            query: query,
+            variables: variables
         })
     };
 
+
 // Make the HTTP Api request
 await fetch(url, options).then(handleResponse)
-                   .then(handleData)
-                   .catch(handleError);
-                   
+    .then(handleData)
+    .catch(handleError);
+
 
 function handleResponse(response) {
-    return response.json().then(function (json) {
+    return response.json().then(function(json) {
         return response.ok ? json : Promise.reject(json);
     });
 }
 
-function handleData(data) {
+async function handleData(data) {
     data.data.Page.media[0].characters.edges.forEach(element => {
         console.log(element)
     });
-    return randomInt = data.data.Page.pageInfo.total
+    await console.log(data.data.Page.media[0].title)
+    console.log(data.data.Page.media)
 }
 
 function handleError(error) {
     console.error(error);
 }
-
-
-
-
-var query2 = `
-query {
-    Media (type: ANIME) {
-        characters (sort: ID){
-            edges{
-                node {
-                    name {
-                        first
-                        middle
-                        last
-                    }
-                }
-            }
-        } 
-    }
-  }
-  
-`
-
-var variables = {
-    id: 15125
-}
-
-var url2 = 'https://graphql.anilist.co',
-    options2 = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-            query: query2,
-            variables: variables
-        })
-    };
-
-await fetch(url2, options2).then(handleResponse)
-                   .then(handleData2)
-                   .catch(handleError);
-
-function handleData2(data) {
- 
-}                   

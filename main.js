@@ -53,6 +53,7 @@ client.on('messageCreate', async(message) => {
             sendMessage.react("3️⃣")
             setTimeout(function() {
                 sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
+                return;
             }, 30000)
         })
     }
