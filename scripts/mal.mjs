@@ -1,18 +1,21 @@
-import request from 'request'
 import anilist from 'anilist-node';
 const Anilist = new anilist();
 import fetch from 'node-fetch'
+import request from 'request'
+import util from 'util'
+const requestPromise = util.promisify(request);
+
 //Anilist.media.anime(21708).then(data => {
-    //     console.log(data);
-    // });
-    function getRandomCharacter(min, max) {
+//     console.log(data);
+// });
+
+var drop = [];
+
+export async function getChars() {
+    function random(min, max) {
         return Math.ceil(Math.random() * (max - min) + min);
     }
-
-var dropInfo = []
-
-async function getFROMAPI() {
-    var randomInt = getRandomCharacter(1, 1000)
+    var randomInt = random(1, 3000)
 
     var query = `
     query ($randomInt: Int){
@@ -61,10 +64,22 @@ async function getFROMAPI() {
                 variables: variables
             })
         };
+    async function teste(id) {
+        return requestPromise(`https://api.jikan.moe/v3/character/${id}/pictures`).then(response => {
+            if (response.statusCode === 200) {
+                return JSON.parse(response.body)
+            }
+            return Promise.reject(response.statusCode)
+        })
+    }
+
+    // Make the HTTP Api request
+    await fetch(url, options).then(handleResponse)
+        .then(handleData)
+        .catch(handleError);
 
 
-    await fetch(url, options).then(await handleResponse)
-    .then(await handleData)
+
 
     function handleResponse(response) {
         return response.json().then(function(json) {
@@ -73,21 +88,27 @@ async function getFROMAPI() {
     }
 
     async function handleData(data) {
-
-        var Char = data.data.Page.media[0].characters.edges[getRandomCharacter(0, data.data.Page.media[0].characters.edges.length - 1)];
-        var Title = data.data.Page.media[0].title;
-        request(`https://api.jikan.moe/v3/character/${Char.node.id}/pictures`, async function (error, response, body) {
-            var Pics = JSON.parse(body).pictures[getRandomCharacter(0, JSON.parse(body).pictures.length - 1)];
-            dropInfo.push(Pics)
-            dropInfo.push(Title)
-            dropInfo.push(Char)
-            return dropInfo
+        var number = random(0, data.data.Page.media[0].characters.edges.length - 1)
+        var char = data.data.Page.media[0].characters.edges[number].node.name
+        var title = data.data.Page.media[0].title.romaji
+        var img = data.data.Page.media[0].characters.edges[number].node.image.large
+        var id = data.data.Page.media[0].characters.edges[number].node.id
+        return drop.push({
+            char,
+            title,
+            img,
+            id
         })
-        return dropInfo
+
     }
-    return dropInfo
+
+    function handleError(error) {
+        console.error(error);
+    }
 }
 
- console.log(await getFROMAPI())
- console.log(await getFROMAPI())
- console.log(await getFROMAPI())
+await getChars()
+await getChars()
+await getChars()
+
+console.log(drop)
