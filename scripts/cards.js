@@ -52,20 +52,31 @@ const createDropTemplate = async(drop) => {
     const ctx = canvas.getContext('2d')
 
     ctx.drawImage(await loadImage('images/background2.jpg'), null, null, 1900, 1000)
-    ctx.drawImage(await loadImage(drop[0][0].image), 50, 100, 500, 800)
-    ctx.drawImage(await loadImage(drop[0][1].image), 700, 100, 500, 800)
-    ctx.drawImage(await loadImage(drop[0][2].image), 1350, 100, 500, 800)
+    ctx.drawImage(await loadImage(drop[0][0].img), 50, 100, 500, 800)
+    ctx.drawImage(await loadImage(drop[0][1].img), 700, 100, 500, 800)
+    ctx.drawImage(await loadImage(drop[0][2].img), 1350, 100, 500, 800)
 
     ctx.font = '70px Public Sans'
     ctx.fillStyle = "#FFFFFF";
+    if (drop[0][0].char.last !== null){
+        ctx.fillText(drop[0][0].char.first + ' ' + drop[0][0].char.last ?? '', 100, 80, 400)
+    } else {
+        ctx.fillText(drop[0][0].char.first, 100, 80, 400)
+    }
+    if (drop[0][1].char.last !== null){
+        ctx.fillText(drop[0][1].char.first + ' ' + drop[0][1].char.last ?? '', 750, 80, 400)
+    } else {
+        ctx.fillText(drop[0][1].char.first, 750, 80, 400)
+    }
+    if (drop[0][2].char.last !== null){
+        ctx.fillText(drop[0][2].char.first + ' ' + drop[0][2].char.last ?? '', 1400, 80, 400)
+    } else {
+        ctx.fillText(drop[0][2].char.first, 1400, 80, 400)
+    }
 
-    ctx.fillText(drop[0][0].name, 100, 80, 400)
-    ctx.fillText(drop[0][1].name, 750, 80, 400)
-    ctx.fillText(drop[0][2].name, 1400, 80, 400)
-
-    ctx.fillText(drop[0][0].animeTitle, 100, 980, 450)
-    ctx.fillText(drop[0][1].animeTitle, 750, 980, 450)
-    ctx.fillText(drop[0][2].animeTitle, 1350, 980, 450)
+    ctx.fillText(drop[0][0].title, 50, 980, 500)
+    ctx.fillText(drop[0][1].title, 700, 980, 500)
+    ctx.fillText(drop[0][2].title, 1350, 980, 500)
 
     const fs = require('fs')
     const out = fs.createWriteStream(__dirname + '/drop.png')
