@@ -90,16 +90,16 @@ async function getChars() {
     async function handleData(data) {
         var number = random(0, data.data.Page.media[0].characters.edges.length - 1)
         try {
-        var char = data.data.Page.media[0].characters.edges[number].node.name
-        var title = data.data.Page.media[0].title.romaji
-        var img = data.data.Page.media[0].characters.edges[number].node.image.large
-        var id = data.data.Page.media[0].characters.edges[number].node.id
-        return drop.push({
-            char,
-            title,
-            img,
-            id
-        })
+            var char = data.data.Page.media[0].characters.edges[number].node.name
+            var title = data.data.Page.media[0].title.romaji
+            var img = data.data.Page.media[0].characters.edges[number].node.image.large
+            var id = data.data.Page.media[0].characters.edges[number].node.id
+            return drop.push({
+                char,
+                title,
+                img,
+                id
+            })
         } catch (e){
             return drop.push({
                 char: {first: 'Eevee', last: null},

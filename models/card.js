@@ -1,9 +1,31 @@
 const mongoose = require("mongoose");
 
+const fsLibrary  = require('fs')
+ 
+const id = async function () {
+    var id;
+    fsLibrary.readFile('./models/id.txt', (error, txtString) => {
+ 
+        if (error) throw error;
+        incrementID(txtString.toString())
+        id = (txtString.toString())
+    })
+    console.log(`current id ${id}`)
+    return id
+}
+
+const incrementID = async function (number) {
+    let newID = Number(number) + 1
+    fsLibrary.writeFile('./models/id.txt', newID.toString(), (error) => {
+        if (error) throw err;
+    })
+}
+
 const dataSchema = mongoose.Schema({
     userID: String,
-    cardID: String,
-    cardName: String,
+    cardID: Number,
+    cardName: Object,
+    cardFrom: String,
     cardStars: String,
     cardAttack: String,
     cardDefense: String,
@@ -13,3 +35,4 @@ const dataSchema = mongoose.Schema({
 })
 
 module.exports = mongoose.model("Card", dataSchema);
+module.exports.incrementID = incrementID

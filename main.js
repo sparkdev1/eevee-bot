@@ -3,6 +3,7 @@ const fs = require('fs');
 const { Client, Collection, Intents, MessageEmbed, MessageAttachment, ReactionCollector } = require('discord.js');
 const { token, prefix, mongoConst } = require('./config.json');
 const mongoose = require('mongoose');
+const cardSchema = require('./models/card')
 const card = require('./scripts/cards.js');
 const char = require('./scripts/characters.js');
 const mal = require('./scripts/mal.js')
@@ -56,15 +57,33 @@ client.on('messageCreate', async(message) => {
             sendMessage.react("3️⃣")       
             const filter = (reaction, user) => ["1️⃣", "2️⃣", "3️⃣"].includes(reaction.emoji.name) && user.id != '889885729273020516';
             const collector = sendMessage.createReactionCollector({ filter, max: 3, time: 30000 });
+            var today = new Date();
 
+            var date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
             collector.on('collect', async (reaction, user) => {
                 if (reaction.emoji.name === "1️⃣") {
                     var values = await card.generateCardValues();
+                    var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
+                    cardSchema.incrementID(cardID)
+                    const newCard = new cardSchema({
+                        userID: user.id,
+                        cardID: cardID,
+                        cardName: drop[0][0].char,
+                        cardFrom: drop[0][0].title,
+                        cardStars: values[0].s,
+                        cardAttack: values[0].a,
+                        cardDefense: values[0].d,
+                        cardIntelligence: values[0].i,
+                        cardDateGet: date,
+                        cardPhoto: drop[0][0].img
+                    })
+                    newCard.save().catch(err => console.log(err));
                     let cardStarsE = ''
                     for (let i = 1; i <= values[0].s; i++) {
                         cardStarsE += ":star: "
                     }
-                    message.channel.send(`<@${user.id}> pegou ***${drop[0][0].char.first}*** com ${cardStarsE} estrelas`)
+                    let aspas = "`"
+                    message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][0].char.first}*** com  ${cardStarsE} estrelas`)
                     return;
                 }
                 if (reaction.emoji.name === "2️⃣") {

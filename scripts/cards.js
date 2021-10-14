@@ -16,10 +16,10 @@ const searchSpecificCard = (code, client, message) => {
         }
         client.users.fetch(data.userID).then((user) => {
             let cardPhoto = data.cardPhoto
-            let cardName = data.cardName
+            let cardName = data.cardName.first + " " + data.cardName.last != 'null' ? data.cardName.last : ' '
             let cardNameURL = cardName.replace(/[^A-Z0-9]+/ig, "+")
             let cardCode = data.cardID
-            let cardAnimeFrom = 'Anime Name'
+            let cardAnimeFrom = data.cardFrom
 
             let cardStarsE = ''
 
