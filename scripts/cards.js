@@ -89,5 +89,57 @@ const createDropTemplate = async(drop) => {
     return { files: [attachment] }
 }
 
+function random(min, max) {
+    return Math.ceil(Math.random() * (max - min) + min);
+}
+
+
+const generateCardValues = async() => {
+    var values = []
+    var randomNumber = random(0, 100)
+
+    if (randomNumber <= 20) {
+        let stars = 1
+        let attack = random(0, 30)
+        let defense = random(0, 30)
+        let intelligence = random(0, 30)
+        values.push({s: stars, a: attack, d: defense, i: intelligence})
+    }
+
+    if (randomNumber > 20 && randomNumber < 40) {
+        let stars = 2
+        let attack = random(30, 50)
+        let defense = random(30, 50)
+        let intelligence = random(30, 50)
+        values.push({s: stars, a: attack, d: defense, i: intelligence})
+    }
+
+    if (randomNumber > 40 && randomNumber < 70) {
+        let stars = 3
+        let attack = random(50, 100)
+        let defense = random(50, 100)
+        let intelligence = random(50, 100)
+        values.push({s: stars, a: attack, d: defense, i: intelligence})
+    }
+
+    if (randomNumber > 70 && randomNumber < 90) {
+        let stars = 4
+        let attack = random(100, 250)
+        let defense = random(100, 250)
+        let intelligence = random(100, 250)
+        values.push({s: stars, a: attack, d: defense, i: intelligence})
+    }
+
+    if (randomNumber > 90 && randomNumber < 100) {
+        let stars = 5
+        let attack = random(250, 500)
+        let defense = random(250, 500)
+        let intelligence = random(250, 500)
+        values.push({s: stars, a: attack, d: defense, i: intelligence})
+    }
+    console.log(values)
+    return values
+}
 module.exports.searchSpecificCard = searchSpecificCard
 module.exports.createDropTemplate = createDropTemplate
+module.exports.generateCardValues = generateCardValues

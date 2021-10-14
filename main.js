@@ -14,7 +14,9 @@ console.log('Successfully connected to MongoDB')
     // Create a new client instance
 const client = new Client({
     intents: [
-        Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS
     ]
 });
 
@@ -51,16 +53,41 @@ client.on('messageCreate', async(message) => {
         message.channel.send(await card.createDropTemplate(drop)).then(sendMessage => {
             sendMessage.react("1️⃣")
             sendMessage.react("2️⃣")
-            sendMessage.react("3️⃣")
-            const filter = (r) => { 
-                return ['1️⃣', '2️⃣', '3️⃣'].includes(r.emoji.name)
-            };
-            const collector = sendMessage.createReactionCollector(filter, {time: 60000});
-            collector.on('collect', (r) => {
-               //Put your response to reactions here
-               message.channel.send("Reply with something to " + " because they reacted with " + r.emoji.name);
+            sendMessage.react("3️⃣")       
+            const filter = (reaction, user) => ["1️⃣", "2️⃣", "3️⃣"].includes(reaction.emoji.name) && user.id != '889885729273020516';
+            const collector = sendMessage.createReactionCollector({ filter, max: 3, time: 30000 });
+
+            collector.on('collect', async (reaction, user) => {
+                if (reaction.emoji.name === "1️⃣") {
+                    var values = await card.generateCardValues();
+                    let cardStarsE = ''
+                    for (let i = 1; i <= values[0].s; i++) {
+                        cardStarsE += ":star: "
+                    }
+                    message.channel.send(`<@${user.id}> pegou ***${drop[0][0].char.first}*** com ${cardStarsE} estrelas`)
+                    return;
+                }
+                if (reaction.emoji.name === "2️⃣") {
+                    var values = await card.generateCardValues();
+                    let cardStarsE = ''
+                    for (let i = 1; i <= values[0].s; i++) {
+                        cardStarsE += ":star: "
+                    }
+                    message.channel.send(`<@${user.id}> pegou ***${drop[0][1].char.first}*** com ${cardStarsE} estrelas`)
+                    return;
+                }
+                if (reaction.emoji.name === "3️⃣") {
+                    var values = await card.generateCardValues();
+                    let cardStarsE = ''
+                    for (let i = 1; i <= values[0].s; i++) {
+                        cardStarsE += ":star: "
+                    }
+                    message.channel.send(`<@${user.id}> pegou ***${drop[0][2].char.first}*** com ${cardStarsE} estrelas`)
+                    return;
+                }
             });
-            setTimeout(function() {
+
+            return setTimeout(function() {
                 sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
                 return;
             }, 30000)
