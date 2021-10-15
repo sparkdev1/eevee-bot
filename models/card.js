@@ -24,7 +24,7 @@ const incrementID = async function (number) {
 const dataSchema = mongoose.Schema({
     userID: String,
     cardID: Number,
-    cardName: Object,
+    cardName: String,
     cardFrom: String,
     cardStars: String,
     cardAttack: String,

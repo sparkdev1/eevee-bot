@@ -16,7 +16,7 @@ const searchSpecificCard = (code, client, message) => {
         }
         client.users.fetch(data.userID).then((user) => {
             let cardPhoto = data.cardPhoto
-            let cardName = data.cardName.first + " " + data.cardName.last != 'null' ? data.cardName.last : ' '
+            let cardName = data.cardName
             let cardNameURL = cardName.replace(/[^A-Z0-9]+/ig, "+")
             let cardCode = data.cardID
             let cardAnimeFrom = data.cardFrom
@@ -58,21 +58,22 @@ const createDropTemplate = async(drop) => {
 
     ctx.font = '70px Public Sans'
     ctx.fillStyle = "#FFFFFF";
-    if (drop[0][0].char.last !== null){
-        ctx.fillText(drop[0][0].char.first + ' ' + drop[0][0].char.last ?? '', 100, 80, 400)
-    } else {
-        ctx.fillText(drop[0][0].char.first, 100, 80, 400)
-    }
-    if (drop[0][1].char.last !== null){
-        ctx.fillText(drop[0][1].char.first + ' ' + drop[0][1].char.last ?? '', 750, 80, 400)
-    } else {
-        ctx.fillText(drop[0][1].char.first, 750, 80, 400)
-    }
-    if (drop[0][2].char.last !== null){
-        ctx.fillText(drop[0][2].char.first + ' ' + drop[0][2].char.last ?? '', 1400, 80, 400)
-    } else {
-        ctx.fillText(drop[0][2].char.first, 1400, 80, 400)
-    }
+
+    var firstName = drop[0][0].char.first ?? ' ';
+    var lastName = drop[0][0].char.last ?? ' ';
+    var fullName = firstName +  ' ' + lastName;
+    ctx.fillText(fullName, 100, 80, 400)
+
+    var firstName = drop[0][1].char.first ?? ' ';
+    var lastName = drop[0][1].char.last ?? ' ';
+    var fullName = firstName +  ' ' + lastName;
+    ctx.fillText(fullName, 750, 80, 400)
+
+    var firstName = drop[0][2].char.first ?? ' ';
+    var lastName = drop[0][2].char.last ?? ' ';
+    var fullName = firstName +  ' ' + lastName;
+    ctx.fillText(fullName, 1400, 80, 400)
+
 
     ctx.fillText(drop[0][0].title, 50, 980, 500)
     ctx.fillText(drop[0][1].title, 700, 980, 500)
@@ -103,7 +104,7 @@ const generateCardValues = async() => {
         let attack = random(0, 30)
         let defense = random(0, 30)
         let intelligence = random(0, 30)
-        values.push({s: stars, a: attack, d: defense, i: intelligence})
+        values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
 
     if (randomNumber > 20 && randomNumber < 40) {
@@ -111,7 +112,7 @@ const generateCardValues = async() => {
         let attack = random(30, 50)
         let defense = random(30, 50)
         let intelligence = random(30, 50)
-        values.push({s: stars, a: attack, d: defense, i: intelligence})
+        values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
 
     if (randomNumber > 40 && randomNumber < 70) {
@@ -119,7 +120,7 @@ const generateCardValues = async() => {
         let attack = random(50, 100)
         let defense = random(50, 100)
         let intelligence = random(50, 100)
-        values.push({s: stars, a: attack, d: defense, i: intelligence})
+        values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
 
     if (randomNumber > 70 && randomNumber < 90) {
@@ -127,7 +128,7 @@ const generateCardValues = async() => {
         let attack = random(100, 250)
         let defense = random(100, 250)
         let intelligence = random(100, 250)
-        values.push({s: stars, a: attack, d: defense, i: intelligence})
+        values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
 
     if (randomNumber > 90 && randomNumber < 100) {
@@ -135,7 +136,7 @@ const generateCardValues = async() => {
         let attack = random(250, 500)
         let defense = random(250, 500)
         let intelligence = random(250, 500)
-        values.push({s: stars, a: attack, d: defense, i: intelligence})
+        values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
     console.log(values)
     return values

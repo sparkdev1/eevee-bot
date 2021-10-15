@@ -65,10 +65,13 @@ client.on('messageCreate', async(message) => {
                     var values = await card.generateCardValues();
                     var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
                     cardSchema.incrementID(cardID)
+                    var firstName = drop[0][0].char.first ?? ' ';
+                    var lastName = drop[0][0].char.last ?? ' ';
+                    var fullName = firstName +  ' ' + lastName;
                     const newCard = new cardSchema({
                         userID: user.id,
                         cardID: cardID,
-                        cardName: drop[0][0].char,
+                        cardName: fullName,
                         cardFrom: drop[0][0].title,
                         cardStars: values[0].s,
                         cardAttack: values[0].a,
@@ -88,20 +91,58 @@ client.on('messageCreate', async(message) => {
                 }
                 if (reaction.emoji.name === "2️⃣") {
                     var values = await card.generateCardValues();
+                    var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
+                    cardSchema.incrementID(cardID)
+                    var firstName = drop[0][1].char.first ?? ' ';
+                    var lastName = drop[0][1].char.last ?? ' ';
+                    var fullName = firstName +  ' ' + lastName;
+                    const newCard = new cardSchema({
+                        userID: user.id,
+                        cardID: cardID,
+                        cardName: fullName,
+                        cardFrom: drop[0][1].title,
+                        cardStars: values[0].s,
+                        cardAttack: values[0].a,
+                        cardDefense: values[0].d,
+                        cardIntelligence: values[0].i,
+                        cardDateGet: date,
+                        cardPhoto: drop[0][1].img
+                    })
+                    newCard.save().catch(err => console.log(err));
                     let cardStarsE = ''
                     for (let i = 1; i <= values[0].s; i++) {
                         cardStarsE += ":star: "
                     }
-                    message.channel.send(`<@${user.id}> pegou ***${drop[0][1].char.first}*** com ${cardStarsE} estrelas`)
+                    let aspas = "`"
+                    message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][1].char.first}*** com  ${cardStarsE} estrelas`)
                     return;
                 }
                 if (reaction.emoji.name === "3️⃣") {
                     var values = await card.generateCardValues();
+                    var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
+                    cardSchema.incrementID(cardID)
+                    var firstName = drop[0][2].char.first ?? ' ';
+                    var lastName = drop[0][2].char.last ?? ' ';
+                    var fullName = firstName +  ' ' + lastName;
+                    const newCard = new cardSchema({
+                        userID: user.id,
+                        cardID: cardID,
+                        cardName: fullName,
+                        cardFrom: drop[0][2].title,
+                        cardStars: values[0].s,
+                        cardAttack: values[0].a,
+                        cardDefense: values[0].d,
+                        cardIntelligence: values[0].i,
+                        cardDateGet: date,
+                        cardPhoto: drop[0][2].img
+                    })
+                    newCard.save().catch(err => console.log(err));
                     let cardStarsE = ''
                     for (let i = 1; i <= values[0].s; i++) {
                         cardStarsE += ":star: "
                     }
-                    message.channel.send(`<@${user.id}> pegou ***${drop[0][2].char.first}*** com ${cardStarsE} estrelas`)
+                    let aspas = "`"
+                    message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][2].char.first}*** com  ${cardStarsE} estrelas`)
                     return;
                 }
             });
