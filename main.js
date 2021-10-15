@@ -46,7 +46,14 @@ client.on('messageCreate', async(message) => {
     }
 
     if (command === 'drop' || command === 'd') {
+        
         await mal.zeraDrop()
+        if (typeof activeDrop !== 'undefined') {
+            message.reply('Aguarde um momento, tem outro drop ativo.')
+            return
+        }
+        delete(activeDrop)
+        var activeDrop = true
         const drop = []
         drop.push(await mal.setDrop())
         // sleep
@@ -56,12 +63,15 @@ client.on('messageCreate', async(message) => {
             sendMessage.react("2️⃣")
             sendMessage.react("3️⃣")       
             const filter = (reaction, user) => ["1️⃣", "2️⃣", "3️⃣"].includes(reaction.emoji.name) && user.id != '889885729273020516';
-            const collector = sendMessage.createReactionCollector({ filter, max: 3, time: 30000 });
+            const collector = sendMessage.createReactionCollector({ filter, max: 4, time: 20000 });
             var today = new Date();
 
             var date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
             collector.on('collect', async (reaction, user) => {
                 if (reaction.emoji.name === "1️⃣") {
+                    if (drop[0][0]['picked']) {
+                        return message.channel.send(`<@${user.id}> ${drop[0][0]['picked'].message}`)
+                    }
                     var values = await card.generateCardValues();
                     var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
                     cardSchema.incrementID(cardID)
@@ -86,10 +96,14 @@ client.on('messageCreate', async(message) => {
                         cardStarsE += ":star: "
                     }
                     let aspas = "`"
-                    message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][0].char.first}*** com  ${cardStarsE} estrelas`)
+                    await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][0].char.first}*** com  ${cardStarsE} estrelas`)
+                    drop[0][0]['picked'] = {message: 'Essa carta já foi pega'}
                     return;
                 }
                 if (reaction.emoji.name === "2️⃣") {
+                    if (drop[0][1]['picked']) {
+                        return message.channel.send(`<@${user.id}> ${drop[0][1]['picked'].message}`)
+                    }
                     var values = await card.generateCardValues();
                     var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
                     cardSchema.incrementID(cardID)
@@ -114,10 +128,14 @@ client.on('messageCreate', async(message) => {
                         cardStarsE += ":star: "
                     }
                     let aspas = "`"
-                    message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][1].char.first}*** com  ${cardStarsE} estrelas`)
+                    await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][1].char.first}*** com  ${cardStarsE} estrelas`)
+                    drop[0][1]['picked'] = {message: 'Essa carta já foi pega'}
                     return;
                 }
                 if (reaction.emoji.name === "3️⃣") {
+                    if (drop[0][2]['picked']) {
+                        return message.channel.send(`<@${user.id}> ${drop[0][2]['picked'].message}`)
+                    }
                     var values = await card.generateCardValues();
                     var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
                     cardSchema.incrementID(cardID)
@@ -142,7 +160,8 @@ client.on('messageCreate', async(message) => {
                         cardStarsE += ":star: "
                     }
                     let aspas = "`"
-                    message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][2].char.first}*** com  ${cardStarsE} estrelas`)
+                    await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${drop[0][2].char.first}*** com  ${cardStarsE} estrelas`)
+                    drop[0][2]['picked'] = {message: 'Essa carta já foi pega'}
                     return;
                 }
             });
@@ -150,7 +169,7 @@ client.on('messageCreate', async(message) => {
             return setTimeout(function() {
                 sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
                 return;
-            }, 30000)
+            }, 20000)
         })
     }
 
