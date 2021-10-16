@@ -24,6 +24,8 @@ const client = new Client({
 
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
+const talkedRecently = new Set();
+
 for (const file of eventFiles) {
     const event = require(`./events/${file}`);
     if (event.once) {
@@ -77,7 +79,7 @@ client.on('messageCreate', async(message) => {
                     cardSchema.incrementID(cardID)
                     var firstName = drop[0][0].char.first ?? ' ';
                     var lastName = drop[0][0].char.last ?? ' ';
-                    var fullName = firstName +  ' ' + lastName;
+                    var fullName = firstName + ' ' + lastName;
                     const newCard = new cardSchema({
                         userID: user.id,
                         cardID: cardID,
@@ -171,6 +173,24 @@ client.on('messageCreate', async(message) => {
                 return;
             }, 20000)
         })
+    }
+
+    if (command === 'collection' || command === 'c') {
+        if (talkedRecently.has(message.author.id)) {
+            let aspas = "`"
+            message.channel.send(`Espere ${aspas}2${aspas} segundos antes de usar o comando denovo - <@${message.author.id}>`)
+    } else {
+
+        await card.searchCardCollection(args[0] ?? message.author.id, client, message)
+
+        // Adds the user to the set so that they can't talk for a minute
+        talkedRecently.add(message.author.id);
+        setTimeout(() => {
+          // Removes the user from the set after a minute
+          talkedRecently.delete(message.author.id);
+        }, 2000);
+    }
+        
     }
 
     if (command === 'bag') {

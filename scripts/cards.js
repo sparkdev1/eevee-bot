@@ -46,6 +46,28 @@ const searchSpecificCard = (code, client, message) => {
     });
 }
 
+const searchCardCollection =  (id, client, message) => {
+    Card.find({
+        userID:  id.match(/\d+/g)[0]
+    }, async (err, data) => {
+        if (err) console.log(err);
+
+        if (!data) {
+            return message.reply('Nenhuma carta encontrada')
+        }
+        if (!id) {
+            return message.reply('Usuário inválido.')
+        }
+
+        var string = [];
+        data.forEach((element, index, array) => {
+            string.push(element.cardID + ' - ' + element.cardStars + ' - ' + element.cardName + ' - ' +  element.cardFrom + '\n')
+        })
+        let aspas = "```"
+        message.channel.send(`${aspas} # | ☆ | Nome     |  Anime ${'\n'} ${string.join(`\n`)} ${aspas}`);
+    });
+}
+
 const createDropTemplate = async(drop) => {
     const canvas = createCanvas(1900, 1000)
     registerFont('./custom-fonts/PublicSans-Regular.otf', { family: 'Public Sans' })
@@ -107,7 +129,7 @@ const generateCardValues = async() => {
         values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
 
-    if (randomNumber > 20 && randomNumber < 40) {
+    if (randomNumber > 20 && randomNumber <= 40) {
         let stars = 2
         let attack = random(30, 50)
         let defense = random(30, 50)
@@ -115,7 +137,7 @@ const generateCardValues = async() => {
         values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
 
-    if (randomNumber > 40 && randomNumber < 70) {
+    if (randomNumber > 40 && randomNumber <= 70) {
         let stars = 3
         let attack = random(50, 100)
         let defense = random(50, 100)
@@ -123,7 +145,7 @@ const generateCardValues = async() => {
         values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
 
-    if (randomNumber > 70 && randomNumber < 90) {
+    if (randomNumber > 70 && randomNumber <= 90) {
         let stars = 4
         let attack = random(100, 250)
         let defense = random(100, 250)
@@ -131,7 +153,7 @@ const generateCardValues = async() => {
         values.push({ s: stars, a: attack, d: defense, i: intelligence })
     }
 
-    if (randomNumber > 90 && randomNumber < 100) {
+    if (randomNumber > 90) {
         let stars = 5
         let attack = random(250, 500)
         let defense = random(250, 500)
@@ -141,6 +163,7 @@ const generateCardValues = async() => {
     console.log(values)
     return values
 }
+module.exports.searchCardCollection = searchCardCollection
 module.exports.searchSpecificCard = searchSpecificCard
 module.exports.createDropTemplate = createDropTemplate
 module.exports.generateCardValues = generateCardValues
