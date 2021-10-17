@@ -15,7 +15,7 @@ function random(min, max) {
 
 var drop = [];
 async function getChars() {
-    var randomInt = random(1, 3000)
+    var randomInt = random(1, 53000)
 
     var query = `
     query ($randomInt: Int){
@@ -23,14 +23,18 @@ async function getChars() {
         pageInfo {
             total
         }
-        media(type: ANIME, sort: FAVOURITES_DESC) {
-            title {
-                romaji
-            }
-            characters (sort: ID){
-                edges{
-                    node {
+            characters (sort: FAVOURITES_DESC){
+                    
                         id
+                        media {
+                            edges{
+                                node {
+                                    title{
+                                        userPreferred
+                                    }
+                                }
+                            }
+                        }
                         name {
                             first
                             last
@@ -38,10 +42,9 @@ async function getChars() {
                         image {
                             large
                         }
-                    }
-                }
+                
+                
             }
-        }
         }
     }
     `;
@@ -49,9 +52,9 @@ async function getChars() {
     // Define our query variables and values that will be used in the query request
 
     var variables = {
-            randomInt: randomInt
-        }
-        // Define the config we'll need for our Api request
+        randomInt: randomInt
+    }
+    // Define the config we'll need for our Api request
     var url = 'https://graphql.anilist.co',
         options = {
             method: 'POST',
@@ -82,27 +85,30 @@ async function getChars() {
 
 
     function handleResponse(response) {
-        return response.json().then(function(json) {
+        return response.json().then(function (json) {
             return response.ok ? json : Promise.reject(json);
         });
     }
 
     async function handleData(data) {
-        var number = random(0, data.data.Page.media[0].characters.edges.length - 1)
+        var number = random(0, 1)
         try {
-            var char = data.data.Page.media[0].characters.edges[number].node.name
-            var title = data.data.Page.media[0].title.romaji
-            var img = data.data.Page.media[0].characters.edges[number].node.image.large
-            var id = data.data.Page.media[0].characters.edges[number].node.id
+            var firstName = data.data.Page.characters[0].name.first ?? ''
+            var lastName = data.data.Page.characters[0].name.last ?? ''
+            var char = firstName + ' ' + lastName
+            var title = data.data.Page.characters[0].media.edges[0].node.title.userPreferred
+            var img = data.data.Page.characters[0].image.large
+            var id = data.data.Page.characters[0].id
+
             return drop.push({
                 char,
                 title,
                 img,
                 id
             })
-        } catch (e){
+        } catch (e) {
             return drop.push({
-                char: {first: 'Eevee', last: null},
+                char: { first: 'Eevee', last: null },
                 title: 'Pokemon',
                 img: 'https://s4.anilist.co/file/anilistcdn/character/large/b135979-8fTB1j4rvc9E.jpg'
             })
@@ -123,7 +129,10 @@ async function setDrop() {
 }
 async function zeraDrop() {
     drop = []
-    return 
+    return
 }
+
+setDrop()
+
 module.exports.setDrop = setDrop
 module.exports.zeraDrop = zeraDrop

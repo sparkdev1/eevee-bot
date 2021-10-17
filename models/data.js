@@ -5,6 +5,7 @@ const dataSchema = mongoose.Schema({
     userID: String,
     lb: String,
     money: String,
+    star: String,
     daily: String
 })
 

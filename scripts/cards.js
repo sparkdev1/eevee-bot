@@ -1,5 +1,6 @@
 const { Client, Collection, Intents, MessageEmbed, MessageAttachment } = require('discord.js');
 const Card = require('../models/card.js')
+const Data = require("../models/data.js");
 const { createCanvas, loadImage, registerFont } = require('canvas')
 
 const searchSpecificCard = (code, client, message) => {
@@ -37,7 +38,7 @@ const searchSpecificCard = (code, client, message) => {
                 .setAuthor(`${cardCode} owned by ${user.username}`)
                 .setDescription(`__${cardAnimeFrom}__`)
                 .setThumbnail(user.avatarURL())
-                .addFields({ name: 'Stars', value: cardStarsE }, { name: '\u200b', value: '\u200b', inline: false }, { name: 'Ataque     ', value: `***:crossed_swords: ${cardAttack}***`, inline: true }, { name: 'Defesa     ', value: `***:shield: ${cardDefense}***`, inline: true }, { name: 'Inteligência     ', value: `***:books: ${cardIntelligence}***`, inline: true }, )
+                .addFields({ name: 'Stars', value: cardStarsE }, { name: '\u200b', value: '\u200b', inline: false }, { name: 'Ataque     ', value: `***:crossed_swords: ${cardAttack}***`, inline: true }, { name: 'Defesa     ', value: `***:shield: ${cardDefense}***`, inline: true }, { name: 'Inteligência     ', value: `***:books: ${cardIntelligence}***`, inline: true },)
                 .setImage(cardPhoto)
                 .setTimestamp()
                 .setFooter(user.tag, user.avatarURL());
@@ -46,29 +47,80 @@ const searchSpecificCard = (code, client, message) => {
     });
 }
 
-const searchCardCollection =  (id, client, message) => {
-    Card.find({
-        userID:  id.match(/\d+/g)[0]
-    }, async (err, data) => {
+const searchLastCard = (client, message) => {
+    Card.findOne({
+        userID: message.author.id
+    }, {}, { sort: { cardID: -1 } }, (err, data) => {
         if (err) console.log(err);
 
         if (!data) {
-            return message.reply('Nenhuma carta encontrada')
+            return message.reply('Você não possui cartas.')
         }
-        if (!id) {
-            return message.reply('Usuário inválido.')
-        }
+        client.users.fetch(data.userID).then((user) => {
+            let cardPhoto = data.cardPhoto
+            let cardName = data.cardName
+            let cardNameURL = cardName.replace(/[^A-Z0-9]+/ig, "+")
+            let cardCode = data.cardID
+            let cardAnimeFrom = data.cardFrom
 
-        var string = [];
-        data.forEach((element, index, array) => {
-            string.push(element.cardID + ' - ' + element.cardStars + ' - ' + element.cardName + ' - ' +  element.cardFrom + '\n')
+            let cardStarsE = ''
+
+            for (let i = 1; i <= data.cardStars; i++) {
+                cardStarsE += ":star: "
+            }
+
+            let cardAttack = data.cardAttack
+            let cardDefense = data.cardDefense
+            let cardIntelligence = data.cardIntelligence
+            const exampleEmbed = new MessageEmbed()
+                .setColor("#fa5700")
+                .setTitle(cardName)
+                .setURL(`https://myanimelist.net/character.php?cat=character&q=${cardNameURL}`)
+                .setAuthor(`${cardCode} owned by ${user.username}`)
+                .setDescription(`__${cardAnimeFrom}__`)
+                .setThumbnail(user.avatarURL())
+                .addFields({ name: 'Stars', value: cardStarsE }, { name: '\u200b', value: '\u200b', inline: false }, { name: 'Ataque     ', value: `***:crossed_swords: ${cardAttack}***`, inline: true }, { name: 'Defesa     ', value: `***:shield: ${cardDefense}***`, inline: true }, { name: 'Inteligência     ', value: `***:books: ${cardIntelligence}***`, inline: true },)
+                .setImage(cardPhoto)
+                .setTimestamp()
+                .setFooter(user.tag, user.avatarURL());
+            message.reply({ embeds: [exampleEmbed] })
         })
-        let aspas = "```"
-        message.channel.send(`${aspas} # | ☆ | Nome     |  Anime ${'\n'} ${string.join(`\n`)} ${aspas}`);
     });
 }
 
-const createDropTemplate = async(drop) => {
+const searchCardCollection = (id, client, args, message) => {
+    if (id.match(/\d+/g) !== null) {
+
+        var page = 0;// 10 = page 1, 20 = page 2...
+        switch (client) {
+            case 'p=':
+                page = (args.match(/\d+/g)[0] - 1) * 10
+        }
+        Card.find({
+            userID: id.match(/\d+/g)[0]
+        }, {}, { skip: page, limit: 10, sort: { cardID: -1 } }, async (err, data) => {
+            if (err) console.log(err);
+
+            if (!data) {
+                return message.reply('Nenhuma carta encontrada')
+            }
+            if (!id) {
+                return message.reply('Usuário inválido.')
+            }
+
+            var string = [];
+            data.forEach((element, index, array) => {
+                string.push(element.cardID + ' - ' + element.cardStars + ' - ' + element.cardName + ' - ' + element.cardFrom + '\n')
+            })
+            let aspas = "```"
+            message.channel.send(`${aspas} # | ☆ | Nome     |  Anime ${'\n'}${'\n'}${string.join(`\n`)} ${aspas}`);
+        });
+    } else {
+        message.reply('Houve um erro ao buscar');
+    }
+}
+
+const createDropTemplate = async (drop) => {
     const canvas = createCanvas(1900, 1000)
     registerFont('./custom-fonts/PublicSans-Regular.otf', { family: 'Public Sans' })
     const ctx = canvas.getContext('2d')
@@ -81,19 +133,14 @@ const createDropTemplate = async(drop) => {
     ctx.font = '70px Public Sans'
     ctx.fillStyle = "#FFFFFF";
 
-    var firstName = drop[0][0].char.first ?? ' ';
-    var lastName = drop[0][0].char.last ?? ' ';
-    var fullName = firstName +  ' ' + lastName;
+    var fullName =  drop[0][0].char
     ctx.fillText(fullName, 100, 80, 400)
 
-    var firstName = drop[0][1].char.first ?? ' ';
-    var lastName = drop[0][1].char.last ?? ' ';
-    var fullName = firstName +  ' ' + lastName;
+
+    var fullName = drop[0][1].char
     ctx.fillText(fullName, 750, 80, 400)
 
-    var firstName = drop[0][2].char.first ?? ' ';
-    var lastName = drop[0][2].char.last ?? ' ';
-    var fullName = firstName +  ' ' + lastName;
+    var fullName = drop[0][2].char
     ctx.fillText(fullName, 1400, 80, 400)
 
 
@@ -112,12 +159,100 @@ const createDropTemplate = async(drop) => {
     return { files: [attachment] }
 }
 
+const giveCard = (toUser, code, message, client) => {
+
+    Card.findOne({
+        userID: message.author.id,
+        cardID: code
+    }, (err, data) => {
+        if (err) console.log(err);
+
+        if (!data) {
+            return message.reply('Essa carta não pertence a você ou não existe.')
+        }
+        if (!code) {
+            return message.reply('Por favor, utilize código de card válido.')
+        }
+        client.users.fetch(data.userID).then((user) => {
+            client.users.fetch(toUser.match(/\d+/g)[0]).then((theuser) => {
+            let cardPhoto = data.cardPhoto
+            let cardName = data.cardName
+            let cardCode = data.cardID
+
+            let aspas = "`"
+            let cardStars = data.cardStars
+            let cardDateGet = data.cardDateGet
+            const exampleEmbed = new MessageEmbed()
+                .setColor("#ffffff")
+                .setTitle(`Deseja transferir essa carta para ${theuser.tag}?`)
+                .setDescription(`${aspas}${cardCode}${aspas} - :star: ${cardStars} ***${cardName}*** adquirida dia ${cardDateGet}`)
+                .setThumbnail(user.avatarURL())
+                .setImage(cardPhoto)
+                .setTimestamp()
+                .setFooter(user.tag, user.avatarURL());
+            message.reply({ embeds: [exampleEmbed] }).then(sendMessage => {
+                sendMessage.react("❌")
+                sendMessage.react("✅")
+                const filter = (reaction, user) => ["❌", "✅"].includes(reaction.emoji.name) && user.id === message.author.id;
+                const collector = sendMessage.createReactionCollector({ filter, max: 1, time: 20000 });
+
+                collector.on('collect', async (reaction, user) => {
+                    if (reaction.emoji.name === "❌" && user.id === message.author.id) {
+                        sendMessage.edit({ embeds: [exampleEmbed.setColor("#ff0000")] })
+                        await message.channel.send('Operação cancelada!')
+                        return
+                    }
+                    if (reaction.emoji.name === "✅" && user.id === message.author.id) {
+                        Data.findOne({
+                            userID: user.id
+                        }, (err, data) => {
+                            if (err) console.log(err);
+                            console.log(data)
+                            if (!data) {
+                                const newData = new Data({
+                                    name: player.username,
+                                    userID: player.id,
+                                    lb: "all",
+                                    money: 0,
+                                    star: 0,
+                                    daily: 0,
+                                })
+                                newData.save().catch(err => console.log(err))
+                            }
+                            if (code.match(/\d+/g) !== null) {
+                                Card.findOneAndUpdate({
+                                    userID: message.author.id,
+                                    cardID: code
+                                }, { userID: toUser.match(/\d+/g)[0] }, { new: true }, function (err, docs) {
+                                    if (err) {
+                                        console.log(err)
+                                        message.reply('Essa cartão não pertence a você ou o usuário não existe.')
+                                        return
+                                    }
+                                })
+
+                                sendMessage.edit({ embeds: [exampleEmbed.setColor("#00ff11")] })
+                                message.channel.send('Operação concluída!')
+                                return
+                            }
+                        })
+
+                    }
+                })
+            })
+
+        })
+    })
+    })
+
+}
+
 function random(min, max) {
     return Math.ceil(Math.random() * (max - min) + min);
 }
 
 
-const generateCardValues = async() => {
+const generateCardValues = async () => {
     var values = []
     var randomNumber = random(0, 100)
 
@@ -163,6 +298,8 @@ const generateCardValues = async() => {
     console.log(values)
     return values
 }
+module.exports.giveCard = giveCard
+module.exports.searchLastCard = searchLastCard
 module.exports.searchCardCollection = searchCardCollection
 module.exports.searchSpecificCard = searchSpecificCard
 module.exports.createDropTemplate = createDropTemplate

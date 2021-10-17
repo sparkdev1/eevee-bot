@@ -15,7 +15,7 @@ const id = async function () {
 }
 
 const incrementID = async function (number) {
-    let newID = Number(number) + 1
+    let newID = parseInt(number) + 1
     fsLibrary.writeFile('./models/id.txt', newID.toString(), (error) => {
         if (error) throw err;
     })
