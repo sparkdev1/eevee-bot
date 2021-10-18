@@ -27,8 +27,8 @@ const createDropTemplate = async () => {
     const ctx = canvas.getContext('2d')
 
     
-    ctx.drawImage(await loadImage('images/try.png'), 15, 90, 230, 345)
-    ctx.drawImage(await loadImage('images/the_temple_frame.png'), null, null, 270, 400)
+    ctx.drawImage(await loadImage('images/try3.png'), 20, 90, 230, 300)
+    ctx.drawImage(await loadImage('images/fury_tiger_frame.png'), null, null, 270, 400)
 
     ctx.font = '40px Public Sans'
     ctx.fillStyle = "#000000";
@@ -38,24 +38,39 @@ const createDropTemplate = async () => {
 
     drawMultilineText(
         ctx,
-        "Naruto Uzumaki",
+        "Kyoujurou Rengoku",
         {
             rect: {
-                x: 1000,
-                y: 0,
-                width: 270,
+                x: 135,
+                y: -125,
+                width: 220,
                 height: 380
             },
             font: 'Arial',
             verbose: true,
             lineHeight: 1,
-            minFontSize: 100,
-            maxFontSize: 200
+            minFontSize: 20,
+            maxFontSize: 25
         }
     )
-    //ctx.fillText('Naruto Uzumaki', 30, 80, 200)
-
-    ctx.fillText('Naruto', 35, 345, 200)
+    drawMultilineText(
+        ctx,
+        "Kimetsu no Yaiba",
+        {
+            rect: {
+                x: 135,
+                y: 145,
+                width: 220,
+                height: 380
+            },
+            font: 'Arial',
+            verbose: true,
+            lineHeight: 1,
+            minFontSize: 20,
+            maxFontSize: 25
+        }
+    )
+    
 
     const fs = require('fs')
     const out = fs.createWriteStream(__dirname + '/test.png')

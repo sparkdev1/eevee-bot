@@ -1,4 +1,5 @@
 const { Client, Collection, Intents, MessageEmbed, MessageAttachment } = require('discord.js');
+const fs = require('fs')
 const Card = require('../models/card.js')
 const Data = require("../models/data.js");
 const { createCanvas, loadImage, registerFont } = require('canvas')
@@ -148,13 +149,14 @@ const createDropTemplate = async (drop) => {
     ctx.fillText(drop[0][1].title, 700, 980, 500)
     ctx.fillText(drop[0][2].title, 1350, 980, 500)
 
+    const buffer = canvas.toBuffer('image/png')
+    fs.writeFileSync(__dirname + '/drop.png', buffer)
+
     
-    const fs = require('fs')
-    const out = fs.createWriteStream(__dirname + '/drop.png')
-    const stream = canvas.createPNGStream()
-    stream.pipe(out)
-    out.on('finish', () => console.log('The Drop PNG file was created.'))
-    setTimeout(function () {},1000)
+    // const out = fs.createWriteStream(__dirname + '/drop.png')
+    // const stream = canvas.createPNGStream()
+    // stream.pipe(out)
+    // out.on('finish', () => console.log('The Drop PNG file was created.'))
     const attachment = new MessageAttachment(__dirname + '/drop.png');
     return { files: [attachment] }
 }
