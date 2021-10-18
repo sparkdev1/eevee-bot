@@ -4,6 +4,8 @@
   },
   "scripts": {
     "start": "node ."
+  },"engines": {
+    "node": "16.x"
   },
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
