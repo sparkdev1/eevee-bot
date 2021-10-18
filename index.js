@@ -25,6 +25,7 @@ const client = new Client({
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
 const talkedRecently = new Set();
+const talkedRecentlyBurn = new Set();
 
 for (const file of eventFiles) {
     const event = require(`./events/${file}`);
@@ -211,7 +212,7 @@ ${aspas}`)
     if (command === 'burn' || command === 'b') {
 
 
-        if (talkedRecently.has(message.author.id)) {
+        if (talkedRecentlyBurn.has(message.author.id)) {
             let aspas = "`"
             message.channel.send(`Espere ${aspas}5${aspas} segundos antes de usar o comando denovo - <@${message.author.id}>`)
         } else {
@@ -222,14 +223,26 @@ ${aspas}`)
                 player.burnCards(args[0], message, client)
             }
         }
-        talkedRecently.add(message.author.id);
+        talkedRecentlyBurn.add(message.author.id);
         setTimeout(() => {
             // Removes the user from the set after a minute
-            talkedRecently.delete(message.author.id);
+            talkedRecentlyBurn.delete(message.author.id);
         }, 5000);
     }
     if (command === 'give' || command === 'g') {
         card.giveCard(args[0], args[1], message, client)
+    }
+
+    if(command === 'shop') {
+        player.showShop(args[0], message, client)
+    }
+
+    if(command === 'shopinfo' || command === 'si') {
+        if (args[0]) {
+        player.showItemInfo(args[0], message, client)
+        } else {
+            return message.reply('Insira o item que deseja ver.')
+        }
     }
 
 });
