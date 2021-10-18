@@ -65,7 +65,7 @@ ${aspas}`)
             let aspas = "`"
             message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
         } else {
-            setTimeout(async function () {
+
             console.log(`${message.author.tag} is dropping.`)
             await mal.zeraDrop()
             if (typeof activeDrop !== 'undefined') {
@@ -182,9 +182,6 @@ ${aspas}`)
                         return;
                     }
                 });
-               
-
-                }, 1000)
 
                 setTimeout(function () {
                     sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
