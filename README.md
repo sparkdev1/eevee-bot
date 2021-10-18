@@ -8,9 +8,10 @@
 - [X] Connection with MongoDB
 - [X] Card View - Mention Feature, Star Feature, Photo Feature
 - [X] Drop Feature (edrop or ed)
+- [X] Collection
 - [ ] Daily
-- [ ] Pick Cards
-- [ ] Burn Cards
+- [X] Pick Cards
+- [X] Burn Cards
 - [ ] Trade
 - [ ] Upgrade Cards
  
