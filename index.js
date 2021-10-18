@@ -65,134 +65,138 @@ ${aspas}`)
             let aspas = "`"
             message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
         } else {
+            try {
+                console.log(`${message.author.tag} is dropping.`)
+                await mal.zeraDrop()
+                if (typeof activeDrop !== 'undefined') {
+                    message.reply('Aguarde um momento, tem outro drop ativo.')
+                    return
+                }
+                delete (activeDrop)
+                var activeDrop = true
+                const drop = []
+                drop.push(await mal.setDrop())
+                // sleep
+                message.reply(`Estou dropando 3 cartas, boa sorte ${message.author}!`)
+                message.channel.send(await card.createDropTemplate(drop)).then(sendMessage => {
+                    sendMessage.react("1️⃣")
+                    sendMessage.react("2️⃣")
+                    sendMessage.react("3️⃣")
+                    const filter = (reaction, user) => ["1️⃣", "2️⃣", "3️⃣"].includes(reaction.emoji.name) && user.id == message.author.id && user.id != '889885729273020516';
+                    const collector = sendMessage.createReactionCollector({ filter, max: 4, time: 20000 });
+                    var today = new Date();
 
-            console.log(`${message.author.tag} is dropping.`)
-            await mal.zeraDrop()
-            if (typeof activeDrop !== 'undefined') {
-                message.reply('Aguarde um momento, tem outro drop ativo.')
-                return
+                    var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
+                    collector.on('collect', async (reaction, user) => {
+                        if (reaction.emoji.name === "1️⃣") {
+                            if (drop[0][0]['picked']) {
+                                return message.channel.send(`<@${user.id}> ${drop[0][0]['picked'].message}`)
+                            }
+                            drop[0][0]['picked'] = { message: 'Essa carta já foi pega' }
+                            var values = await card.generateCardValues();
+                            var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
+                            cardSchema.incrementID(cardID)
+                            var fullName = drop[0][0].char
+                            const newCard = new cardSchema({
+                                userID: user.id,
+                                cardID: cardID,
+                                cardName: fullName,
+                                cardFrom: drop[0][0].title,
+                                cardStars: values[0].s,
+                                cardAttack: values[0].a,
+                                cardDefense: values[0].d,
+                                cardIntelligence: values[0].i,
+                                cardDateGet: date,
+                                cardPhoto: drop[0][0].img
+                            })
+                            newCard.save().catch(err => console.log(err));
+                            let cardStarsE = ''
+                            for (let i = 1; i <= values[0].s; i++) {
+                                cardStarsE += ":star: "
+                            }
+                            let aspas = "`"
+                            await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${fullName}*** com  ${cardStarsE} estrelas`)
+                            drop[0][0]['picked'] = { message: 'Essa carta já foi pega' }
+                            return;
+                        }
+                        if (reaction.emoji.name === "2️⃣") {
+                            if (drop[0][1]['picked']) {
+                                return message.channel.send(`<@${user.id}> ${drop[0][1]['picked'].message}`)
+                            }
+                            drop[0][1]['picked'] = { message: 'Essa carta já foi pega' }
+                            var values = await card.generateCardValues();
+                            var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
+                            cardSchema.incrementID(cardID)
+                            var fullName = drop[0][1].char
+                            const newCard = new cardSchema({
+                                userID: user.id,
+                                cardID: cardID,
+                                cardName: fullName,
+                                cardFrom: drop[0][1].title,
+                                cardStars: values[0].s,
+                                cardAttack: values[0].a,
+                                cardDefense: values[0].d,
+                                cardIntelligence: values[0].i,
+                                cardDateGet: date,
+                                cardPhoto: drop[0][1].img
+                            })
+                            newCard.save().catch(err => console.log(err));
+                            let cardStarsE = ''
+                            for (let i = 1; i <= values[0].s; i++) {
+                                cardStarsE += ":star: "
+                            }
+                            let aspas = "`"
+                            await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${fullName}*** com  ${cardStarsE} estrelas`)
+                            drop[0][1]['picked'] = { message: 'Essa carta já foi pega' }
+                            return;
+                        }
+                        if (reaction.emoji.name === "3️⃣") {
+                            if (drop[0][2]['picked']) {
+                                return message.channel.send(`<@${user.id}> ${drop[0][2]['picked'].message}`)
+                            }
+                            drop[0][2]['picked'] = { message: 'Essa carta já foi pega' }
+                            var values = await card.generateCardValues();
+                            var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
+                            cardSchema.incrementID(cardID)
+                            var fullName = drop[0][2].char
+                            const newCard = new cardSchema({
+                                userID: user.id,
+                                cardID: cardID,
+                                cardName: fullName,
+                                cardFrom: drop[0][2].title,
+                                cardStars: values[0].s,
+                                cardAttack: values[0].a,
+                                cardDefense: values[0].d,
+                                cardIntelligence: values[0].i,
+                                cardDateGet: date,
+                                cardPhoto: drop[0][2].img
+                            })
+                            newCard.save().catch(err => console.log(err));
+                            let cardStarsE = ''
+                            for (let i = 1; i <= values[0].s; i++) {
+                                cardStarsE += ":star: "
+                            }
+                            let aspas = "`"
+                            await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${fullName}*** com  ${cardStarsE} estrelas`)
+                            drop[0][2]['picked'] = { message: 'Essa carta já foi pega' }
+                            return;
+                        }
+                    });
+
+                    setTimeout(function () {
+                        sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
+                        return;
+                    }, 20000)
+                    talkedRecently.add(message.author.id);
+                    setTimeout(() => {
+                        // Removes the user from the set after a minute
+                        talkedRecently.delete(message.author.id);
+                    }, 180000);
+                })
+            } catch (e) {
+                console.log(e)
+                return message.channel.send('Houve umm erro, perdão.')
             }
-            delete (activeDrop)
-            var activeDrop = true
-            const drop = []
-            drop.push(await mal.setDrop())
-            // sleep
-            message.reply(`Estou dropando 3 cartas, boa sorte ${message.author}!`)
-            message.channel.send(await card.createDropTemplate(drop)).then(sendMessage => {
-                sendMessage.react("1️⃣")
-                sendMessage.react("2️⃣")
-                sendMessage.react("3️⃣")
-                const filter = (reaction, user) => ["1️⃣", "2️⃣", "3️⃣"].includes(reaction.emoji.name) && user.id == message.author.id && user.id != '889885729273020516';
-                const collector = sendMessage.createReactionCollector({ filter, max: 4, time: 20000 });
-                var today = new Date();
-
-                var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
-                collector.on('collect', async (reaction, user) => {
-                    if (reaction.emoji.name === "1️⃣") {
-                        if (drop[0][0]['picked']) {
-                            return message.channel.send(`<@${user.id}> ${drop[0][0]['picked'].message}`)
-                        }
-                        drop[0][0]['picked'] = { message: 'Essa carta já foi pega' }
-                        var values = await card.generateCardValues();
-                        var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
-                        cardSchema.incrementID(cardID)
-                        var fullName =drop[0][0].char
-                        const newCard = new cardSchema({
-                            userID: user.id,
-                            cardID: cardID,
-                            cardName: fullName,
-                            cardFrom: drop[0][0].title,
-                            cardStars: values[0].s,
-                            cardAttack: values[0].a,
-                            cardDefense: values[0].d,
-                            cardIntelligence: values[0].i,
-                            cardDateGet: date,
-                            cardPhoto: drop[0][0].img
-                        })
-                        newCard.save().catch(err => console.log(err));
-                        let cardStarsE = ''
-                        for (let i = 1; i <= values[0].s; i++) {
-                            cardStarsE += ":star: "
-                        }
-                        let aspas = "`"
-                        await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${fullName}*** com  ${cardStarsE} estrelas`)
-                        drop[0][0]['picked'] = { message: 'Essa carta já foi pega' }
-                        return;
-                    }
-                    if (reaction.emoji.name === "2️⃣") {
-                        if (drop[0][1]['picked']) {
-                            return message.channel.send(`<@${user.id}> ${drop[0][1]['picked'].message}`)
-                        }
-                        drop[0][1]['picked'] = { message: 'Essa carta já foi pega' }
-                        var values = await card.generateCardValues();
-                        var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
-                        cardSchema.incrementID(cardID)
-                        var fullName = drop[0][1].char
-                        const newCard = new cardSchema({
-                            userID: user.id,
-                            cardID: cardID,
-                            cardName: fullName,
-                            cardFrom: drop[0][1].title,
-                            cardStars: values[0].s,
-                            cardAttack: values[0].a,
-                            cardDefense: values[0].d,
-                            cardIntelligence: values[0].i,
-                            cardDateGet: date,
-                            cardPhoto: drop[0][1].img
-                        })
-                        newCard.save().catch(err => console.log(err));
-                        let cardStarsE = ''
-                        for (let i = 1; i <= values[0].s; i++) {
-                            cardStarsE += ":star: "
-                        }
-                        let aspas = "`"
-                        await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${fullName}*** com  ${cardStarsE} estrelas`)
-                        drop[0][1]['picked'] = { message: 'Essa carta já foi pega' }
-                        return;
-                    }
-                    if (reaction.emoji.name === "3️⃣") {
-                        if (drop[0][2]['picked']) {
-                            return message.channel.send(`<@${user.id}> ${drop[0][2]['picked'].message}`)
-                        }
-                        drop[0][2]['picked'] = { message: 'Essa carta já foi pega' }
-                        var values = await card.generateCardValues();
-                        var cardID = fs.readFileSync('./models/id.txt', 'utf-8')
-                        cardSchema.incrementID(cardID)
-                        var fullName = drop[0][2].char
-                        const newCard = new cardSchema({
-                            userID: user.id,
-                            cardID: cardID,
-                            cardName: fullName,
-                            cardFrom: drop[0][2].title,
-                            cardStars: values[0].s,
-                            cardAttack: values[0].a,
-                            cardDefense: values[0].d,
-                            cardIntelligence: values[0].i,
-                            cardDateGet: date,
-                            cardPhoto: drop[0][2].img
-                        })
-                        newCard.save().catch(err => console.log(err));
-                        let cardStarsE = ''
-                        for (let i = 1; i <= values[0].s; i++) {
-                            cardStarsE += ":star: "
-                        }
-                        let aspas = "`"
-                        await message.channel.send(`<@${user.id}> pegou ${aspas}${cardID}${aspas} ***${fullName}*** com  ${cardStarsE} estrelas`)
-                        drop[0][2]['picked'] = { message: 'Essa carta já foi pega' }
-                        return;
-                    }
-                });
-
-                setTimeout(function () {
-                    sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
-                    return;
-                }, 20000)
-                talkedRecently.add(message.author.id);
-                setTimeout(() => {
-                    // Removes the user from the set after a minute
-                    talkedRecently.delete(message.author.id);
-                }, 180000);
-            })
         }
     }
 
@@ -216,11 +220,15 @@ ${aspas}`)
             let aspas = "`"
             message.channel.send(`Espere ${aspas}5${aspas} segundos antes de usar o comando denovo - <@${message.author.id}>`)
         } else {
-
-            if (!args[0]) {
-                player.burnLastCard(message, client)
-            } else {
-                player.burnCards(args[0], message, client)
+            try {
+                if (!args[0]) {
+                    player.burnLastCard(message, client)
+                } else {
+                    player.burnCards(args[0], message, client)
+                }
+            } catch (e) {
+                console.log(e)
+                return message.channel.send('Houve um erro ao realizar a ação.')
             }
         }
         talkedRecentlyBurn.add(message.author.id);
@@ -230,16 +238,26 @@ ${aspas}`)
         }, 5000);
     }
     if (command === 'give' || command === 'g') {
-        card.giveCard(args[0], args[1], message, client)
+        try {
+            card.giveCard(args[0], args[1], message, client)
+        } catch (e) {
+            console.log(e)
+            return message.channel.send('Houve um erro ao realizar a ação.')
+        }
     }
 
-    if(command === 'shop') {
+    if (command === 'shop') {
         player.showShop(args[0], message, client)
     }
 
-    if(command === 'shopinfo' || command === 'si') {
+    if (command === 'shopinfo' || command === 'si') {
         if (args[0]) {
-        player.showItemInfo(args[0], message, client)
+            try {
+                player.showItemInfo(args[0], message, client)
+            } catch (e) {
+                console.log(e)
+                return message.channel.send('Houve um erro ao realizar a ação.')
+            }
         } else {
             return message.reply('Insira o item que deseja ver.')
         }
