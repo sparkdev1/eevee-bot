@@ -65,7 +65,7 @@ ${aspas}`)
             let aspas = "`"
             message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
         } else {
-            setTimeout(function () {
+            setTimeout(async function () {
             console.log(`${message.author.tag} is dropping.`)
             await mal.zeraDrop()
             if (typeof activeDrop !== 'undefined') {
