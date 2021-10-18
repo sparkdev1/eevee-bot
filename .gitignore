@@ -1,5 +1,5 @@
-node_modules
-.env
-package-lock.json
-config.json
-drop.png
+node_modules/
+.env/
+package-lock.json/
+config.json/
+drop.png/

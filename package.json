@@ -3,7 +3,7 @@
     "eslint": "^7.32.0"
   },
   "scripts": {
-    "start": "node main.js"
+    "start": "node ."
   },
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
