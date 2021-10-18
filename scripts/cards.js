@@ -148,13 +148,13 @@ const createDropTemplate = async (drop) => {
     ctx.fillText(drop[0][1].title, 700, 980, 500)
     ctx.fillText(drop[0][2].title, 1350, 980, 500)
 
-    setTimeout(function () {
+    
     const fs = require('fs')
     const out = fs.createWriteStream(__dirname + '/drop.png')
     const stream = canvas.createPNGStream()
     stream.pipe(out)
     out.on('finish', () => console.log('The Drop PNG file was created.'))
-    },1000)
+    setTimeout(function () {},1000)
     const attachment = new MessageAttachment(__dirname + '/drop.png');
     return { files: [attachment] }
 }

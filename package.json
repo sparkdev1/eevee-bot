@@ -17,6 +17,7 @@
     "discord.js": "^13.2.0",
     "mongoose": "^6.0.11",
     "node-fetch-commonjs": "^3.0.3",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "words-array": "^1.0.1"
   }
 }
