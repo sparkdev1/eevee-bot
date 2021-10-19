@@ -495,6 +495,10 @@ const searchPlayerItems = (id, client, args, message) => {
       message.reply('Houve um erro ao buscar');
   }
 }
+
+const useItem = function (cardID, itemID, message) {
+
+}
 // Data.findOneAndUpdate({
 //     userID: player.id
 // }, (err, data) => {
