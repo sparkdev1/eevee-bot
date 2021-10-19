@@ -1,6 +1,7 @@
 const Data = require("../models/data.js");
 const Card = require("../models/card.js");
 const Shop = require("../models/shop.js");
+const itemSchema = require('../models/item.js')
 const {
   Client,
   Collection,
@@ -350,88 +351,150 @@ const showShop = (page = '1', message, client) => {
 
 const showItemInfo = (id, message, client) => {
   if (id.match(/\d+/g) !== null) {
-    Shop.findOne({
-      itemID: id
-    }, (err, data) => {
-      if (err) return console.log(err);
-      if (!data) return message.reply('Item inválido ou inexistente.')
-      if (data) {
-        const file = new MessageAttachment(`./${data.photo}`);
-        const exampleEmbed = new MessageEmbed()
-          .setColor("#ffffff")
-          .setTitle(`Informações do item: ${data.name}#${data.itemID}`)
-          .setDescription(
-            `${data.name}  -  ${data.type}${'\n'}${'\n'}:money_with_wings: ***${data.price}***${'\n'}${'\n'}${'\n'}*Deseja comprar este item?*`
-          )
-          .setImage(`attachment://${data.photo.substr(7)}`)
-        message.channel.send({ embeds: [exampleEmbed], files: [file] }).then((sendMessage) => {
-          sendMessage.react("❌");
-          sendMessage.react("✅");
-          // const filter = (reaction, user) =>
-          //   ["❌", "✅"].includes(reaction.emoji.name) &&
-          //   user.id === message.author.id;
-          // const collector = sendMessage.createReactionCollector({
-          //   filter,
-          //   max: 1,
-          //   time: 5000,
-          // });
+    Shop.findOne(
+      {
+        itemID: id,
+      },
+      (err, data) => {
+        if (err) return console.log(err);
+        if (!data) return message.reply("Item inválido ou inexistente.");
+        if (data) {
+          const file = new MessageAttachment(`./${data.photo}`);
+          const exampleEmbed = new MessageEmbed()
+            .setColor("#ffffff")
+            .setTitle(`Informações do item: ${data.name}#${data.itemID}`)
+            .setDescription(
+              `${data.name}  -  ${data.type
+              }${"\n"}${"\n"}:money_with_wings: ***${data.price
+              }***${"\n"}${"\n"}${"\n"}*Deseja comprar este item?*`
+            )
+            .setImage(`attachment://${data.photo.substr(7)}`);
+          message.channel
+            .send({ embeds: [exampleEmbed], files: [file] })
+            .then((sendMessage) => {
+              sendMessage.react("❌");
+              sendMessage.react("✅");
+              const filter = (reaction, user) =>
+                ["❌", "✅"].includes(reaction.emoji.name) &&
+                user.id === message.author.id;
+              const collector = sendMessage.createReactionCollector({
+                filter,
+                max: 1,
+                time: 5000,
+              });
 
-          // collector.on("collect", async (reaction, user) => {
-          //   if (reaction.emoji.name === "❌" && user.id === message.author.id) {
-          //     sendMessage.edit({ embeds: [exampleEmbed.setColor("#ff0000")] });
-          //     await message.channel.send("Operação cancelada!");
-          //     return;
-          //   }
-          //   if (reaction.emoji.name === "✅" && user.id === message.author.id) {
-          //     Data.findOne(
-          //       {
-          //         userID: user.id,
-          //       },
-          //       (err, data) => {
-          //         if (err) console.log(err);
-          //         console.log(data);
-          //         if (!data) {
-          //           const newData = new Data({
-          //             name: user.username,
-          //             userID: user.id,
-          //             lb: "all",
-          //             money: 0,
-          //             star: 0,
-          //             daily: 0,
-          //           });
-          //           newData.save().catch((err) => console.log(err));
-          //         }
-          //         oldGold = parseInt(data.money);
-          //         oldStar = parseInt(data.star);
-          //         cardStars = parseInt(cardStars);
-          //         Data.updateOne(
-          //           {
-          //             userID: user.id,
-          //           },
-          //           {
-          //             money: oldGold + cardGoldValue,
-          //             star: oldStar + cardStars,
-          //           },
-          //           function (err, docs) {
-          //             if (err) {
-          //               console.log(err);
-          //             } else {
-          //               console.log("Updated Docs : ", docs);
-          //             }
-          //           }
-          //         );
-          //       }
-          //     );
-          //   }
-          // })
-        })
-      } else {
-        message.reply('Item inválido ou inexistente.')
+              collector.on("collect", async (reaction, user) => {
+                if (
+                  reaction.emoji.name === "❌" &&
+                  user.id === message.author.id
+                ) {
+                  sendMessage.edit({
+                    embeds: [exampleEmbed.setColor("#ff0000")],
+                  });
+                  await message.channel.send("Operação cancelada!");
+                  return;
+                }
+                if (
+                  reaction.emoji.name === "✅" &&
+                  user.id === message.author.id
+                ) {
+                  Data.findOne(
+                    {
+                      userID: user.id,
+                    },
+                    (err, dataUser) => {
+                      if (err) console.log(err);
+                      console.log(dataUser);
+                      if (!dataUser) {
+                        const newData = new Data({
+                          name: user.username,
+                          userID: user.id,
+                          lb: "all",
+                          money: 0,
+                          star: 0,
+                          daily: 0,
+                        });
+                        newData.save().catch((err) => console.log(err));
+                      }
+                      if (parseInt(dataUser.money) >= parseInt(data.price)) {
+                        oldGold = parseInt(dataUser.money);
+                        Data.updateOne(
+                          {
+                            userID: user.id,
+                          },
+                          {
+                            money: oldGold - parseInt(data.price)
+                          },
+                          function (err, docs) {
+                            if (err) {
+                              console.log(err);
+                            } else {
+                              console.log("Updated Docs : ", docs);
+                            }
+                          }
+                        );
+
+                        const newItem = new itemSchema({
+                          userID: user.id,
+                          itemID: data.itemID,
+                          name: data.name,
+                          type: data.type,
+                          photo: data.photo,
+                        });
+                        newItem.save().catch((err) => console.log(err));
+                        return sendMessage.edit({
+                          embeds: [exampleEmbed.setColor("#00ff11").setTitle("Compra realizada com sucesso.")],
+                        });
+                      } else {
+                        return sendMessage.edit({
+                          embeds: [exampleEmbed.setColor("#ff0000").setTitle(`Você não tem dinheiro suficiente para comprar este item`)],
+                        });
+                      }
+                    }
+                  );
+                }
+              });
+            });
+        }
       }
-    })
+    );
+  } else {
+    return message.reply("Item inválido ou inexistente.");
+  }
+};
+
+
+const searchPlayerItems = (id, client, args, message) => {
+  if (id.match(/\d+/g) !== null) {
+
+      var page = 0;// 10 = page 1, 20 = page 2...
+      switch (client) {
+          case 'p=':
+              page = (args.match(/\d+/g)[0] - 1) * 10
+      }
+      itemSchema.find({
+          userID: id.match(/\d+/g)[0]
+      }, {}, { skip: page, limit: 10, }, async (err, data) => {
+          if (err) console.log(err);
+
+          if (!data) {
+              return message.reply('Nenhuma carta encontrada')
+          }
+          if (!id) {
+              return message.reply('Usuário inválido.')
+          }
+
+          var string = [];
+          data.forEach((element, index, array) => {
+              string.push(element.itemID + ' - ' + element.type + ' - ' + element.name + '\n')
+          })
+          let aspas = "```"
+          message.channel.send(`${aspas} # | Tipo | Nome     |${'\n'}${'\n'}${string.join(`\n`)} ${aspas}`);
+      });
+  } else {
+      message.reply('Houve um erro ao buscar');
   }
 }
-
 // Data.findOneAndUpdate({
 //     userID: player.id
 // }, (err, data) => {
@@ -452,6 +515,7 @@ const showItemInfo = (id, message, client) => {
 //         message.reply(`${player.username} tem :moneybag: ${data.money} gold.`)
 
 // })
+module.exports.searchPlayerItems = searchPlayerItems;
 module.exports.showItemInfo = showItemInfo;
 module.exports.showShop = showShop;
 module.exports.burnCards = burnCards;

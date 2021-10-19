@@ -59,12 +59,16 @@ ${aspas}`)
         return (card.searchLastCard(client, message))
     }
 
-    if (command === 'drop' || command === 'd') {
-
+    if (command === 'drop' || command === 'd' && !talkedRecently.has(message.author.id)) {
         if (talkedRecently.has(message.author.id) && message.author.id != '212640369261674496') {
             let aspas = "`"
             message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
         } else {
+            talkedRecently.add(message.author.id);
+                    setTimeout(() => {
+                        // Removes the user from the set after a minute
+                        talkedRecently.delete(message.author.id);
+                    }, 180000);
             try {
                 console.log(`${message.author.tag} is dropping.`)
                 await mal.zeraDrop()
@@ -198,6 +202,9 @@ ${aspas}`)
                 return message.channel.send('Houve umm erro, perdão.')
             }
         }
+    } else {
+        let aspas = "`"
+        message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
     }
 
     if (command === 'collection' || command === 'c') {
@@ -250,18 +257,26 @@ ${aspas}`)
         player.showShop(args[0], message, client)
     }
 
-    //if (command === 'shopinfo' || command === 'si') {
-    //     if (args[0]) {
-    //         try {
-    //             player.showItemInfo(args[0], message, client)
-    //         } catch (e) {
-    //             console.log(e)
-    //             return message.channel.send('Houve um erro ao realizar a ação.')
-    //         }
-    //     } else {
-    //         return message.reply('Insira o item que deseja ver.')
-    //     }
-    // }
+    if (command === 'shopinfo' || command === 'si' && message.author.id == '212640369261674496') {
+        if (args[0]) {
+            try {
+                player.showItemInfo(args[0], message, client)
+            } catch (e) {
+                console.log(e)
+                return message.channel.send('Houve um erro ao realizar a ação.')
+            }
+        } else {
+            return message.reply('Insira o item que deseja ver.')
+        }
+    }
+
+    if (command === 'inventory' || command === 'i' && message.author.id == '212640369261674496') {
+        await player.searchPlayerItems(args[0] ?? message.author.id, args[1], args[2], message)
+    }
+
+    if (command === 'use' && message.author.id == '212640369261674496') {
+        player.useItem(args[0], args[1]) // itemID, cardID 
+    }
 
 });
 
