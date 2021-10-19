@@ -63,6 +63,7 @@ ${aspas}`)
         if (talkedRecently.has(message.author.id) && message.author.id != '212640369261674496') {
             let aspas = "`"
             message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
+            return
         } else {
             talkedRecently.add(message.author.id);
                     setTimeout(() => {
@@ -202,9 +203,10 @@ ${aspas}`)
                 return message.channel.send('Houve umm erro, perdão.')
             }
         }
-    } else {
+    } 
+    if (command === 'drop' || command === 'd' && talkedRecently.has(message.author.id)) {
         let aspas = "`"
-        message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
+        return message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
     }
 
     if (command === 'collection' || command === 'c') {
