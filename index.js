@@ -61,7 +61,7 @@ ${aspas}`)
 
     if (command === 'drop' || command === 'd') {
 
-        if (talkedRecently.has(message.author.id)) {
+        if (talkedRecently.has(message.author.id) && message.author.id != '212640369261674496') {
             let aspas = "`"
             message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
         } else {
@@ -250,18 +250,18 @@ ${aspas}`)
         player.showShop(args[0], message, client)
     }
 
-    if (command === 'shopinfo' || command === 'si') {
-        if (args[0]) {
-            try {
-                player.showItemInfo(args[0], message, client)
-            } catch (e) {
-                console.log(e)
-                return message.channel.send('Houve um erro ao realizar a ação.')
-            }
-        } else {
-            return message.reply('Insira o item que deseja ver.')
-        }
-    }
+    //if (command === 'shopinfo' || command === 'si') {
+    //     if (args[0]) {
+    //         try {
+    //             player.showItemInfo(args[0], message, client)
+    //         } catch (e) {
+    //             console.log(e)
+    //             return message.channel.send('Houve um erro ao realizar a ação.')
+    //         }
+    //     } else {
+    //         return message.reply('Insira o item que deseja ver.')
+    //     }
+    // }
 
 });
 

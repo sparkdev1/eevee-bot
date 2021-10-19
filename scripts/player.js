@@ -349,13 +349,13 @@ const showShop = (page = '1', message, client) => {
 };
 
 const showItemInfo = (id, message, client) => {
-    if (id.match(/\d+/g) !== null) {
-    Shop.findOne({ 
-        itemID: id
+  if (id.match(/\d+/g) !== null) {
+    Shop.findOne({
+      itemID: id
     }, (err, data) => {
-        if(err) return console.log(err);
-        if(!data) return message.reply('Item inválido ou inexistente.')
-        if(data) {
+      if (err) return console.log(err);
+      if (!data) return message.reply('Item inválido ou inexistente.')
+      if (data) {
         const file = new MessageAttachment(`./${data.photo}`);
         const exampleEmbed = new MessageEmbed()
           .setColor("#ffffff")
@@ -364,12 +364,72 @@ const showItemInfo = (id, message, client) => {
             `${data.name}  -  ${data.type}${'\n'}${'\n'}:money_with_wings: ***${data.price}***${'\n'}${'\n'}${'\n'}*Deseja comprar este item?*`
           )
           .setImage(`attachment://${data.photo.substr(7)}`)
-        message.channel.send({ embeds: [exampleEmbed], files: [file] })
-        }
-    })
-    } else {
+        message.channel.send({ embeds: [exampleEmbed], files: [file] }).then((sendMessage) => {
+          sendMessage.react("❌");
+          sendMessage.react("✅");
+          // const filter = (reaction, user) =>
+          //   ["❌", "✅"].includes(reaction.emoji.name) &&
+          //   user.id === message.author.id;
+          // const collector = sendMessage.createReactionCollector({
+          //   filter,
+          //   max: 1,
+          //   time: 5000,
+          // });
+
+          // collector.on("collect", async (reaction, user) => {
+          //   if (reaction.emoji.name === "❌" && user.id === message.author.id) {
+          //     sendMessage.edit({ embeds: [exampleEmbed.setColor("#ff0000")] });
+          //     await message.channel.send("Operação cancelada!");
+          //     return;
+          //   }
+          //   if (reaction.emoji.name === "✅" && user.id === message.author.id) {
+          //     Data.findOne(
+          //       {
+          //         userID: user.id,
+          //       },
+          //       (err, data) => {
+          //         if (err) console.log(err);
+          //         console.log(data);
+          //         if (!data) {
+          //           const newData = new Data({
+          //             name: user.username,
+          //             userID: user.id,
+          //             lb: "all",
+          //             money: 0,
+          //             star: 0,
+          //             daily: 0,
+          //           });
+          //           newData.save().catch((err) => console.log(err));
+          //         }
+          //         oldGold = parseInt(data.money);
+          //         oldStar = parseInt(data.star);
+          //         cardStars = parseInt(cardStars);
+          //         Data.updateOne(
+          //           {
+          //             userID: user.id,
+          //           },
+          //           {
+          //             money: oldGold + cardGoldValue,
+          //             star: oldStar + cardStars,
+          //           },
+          //           function (err, docs) {
+          //             if (err) {
+          //               console.log(err);
+          //             } else {
+          //               console.log("Updated Docs : ", docs);
+          //             }
+          //           }
+          //         );
+          //       }
+          //     );
+          //   }
+          // })
+        })
+      } else {
         message.reply('Item inválido ou inexistente.')
-    }
+      }
+    })
+  }
 }
 
 // Data.findOneAndUpdate({
