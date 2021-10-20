@@ -17,28 +17,28 @@ async function findMalId(charName) {
     })
 }
 
-const cardFrame = async () => {
+const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
 
     const width = 274;
     const height = 405;
-
+  
     const canvas = createCanvas(width, height)
     registerFont('./custom-fonts/Amaranth-Bold.ttf', { family: 'Amaranth' })
     const ctx = canvas.getContext('2d')
-
+  
     
-    ctx.drawImage(await loadImage('https://s4.anilist.co/file/anilistcdn/character/large/127209-IQuMFrofF1Nm.jpg'), 20, 90, 230, 300)
-    ctx.drawImage(await loadImage('images/fury_tiger_frame.png'), null, null, 270, 400)
-
-    ctx.font = '40px Amaranth'
+    ctx.drawImage(await loadImage(cardPhoto), 20, 90, 230, 300)
+    ctx.drawImage(await loadImage(itemPhoto), null, null, 270, 400)
+  
+    ctx.font = 'Amaranth'
     ctx.fillStyle = "#000000";
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle';
-
-
+  
+  
     drawMultilineText(
         ctx,
-        "Obito Uchiha",
+        `${cardName}`,
         {
             rect: {
                 x: 137,
@@ -49,33 +49,34 @@ const cardFrame = async () => {
             font: 'Amaranth',
             verbose: true,
             lineHeight: 1,
-            minFontSize: 28,
+            minFontSize: 25,
             maxFontSize: 36
         }
     )
     drawMultilineText(
         ctx,
-        "Demon Slayer: Kimetsu no Yaiba",
+        `${cardFrom}`,
         {
             rect: {
                 x: 137,
-                y: 360,
-                width: 250,
-                height: 100
+                y: 300,
+                width: 180,
+                height: 50
             },
             font: 'Amaranth',
             verbose: true,
             lineHeight: 1,
-            minFontSize: 28,
+            minFontSize: 22,
             maxFontSize: 36
         }
     )
     
     const fs = require('fs')
     const buffer = canvas.toBuffer('image/png')
-    fs.writeFileSync(__dirname + '/test2.png', buffer)
-
-}
+    fs.writeFileSync(__dirname + '/framedCard.png', buffer)
+    return 
+  
+  }
 
 
 
@@ -207,4 +208,4 @@ function drawMultilineText(ctx, text, opts) {
     return fontSize
 }
 
-cardFrame()
+cardFrame('Ken Kaneki', 'Tokyo Ghoul', 'https://s4.anilist.co/file/anilistcdn/character/large/b87275-mb13EWZBdbh3.png', 'images/cherry_blossom_frame.png')

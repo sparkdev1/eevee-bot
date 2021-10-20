@@ -279,12 +279,12 @@ ${aspas}`)
         await player.searchPlayerItems(args[0] ?? message.author.id, args[1], args[2], message)
     }
 
-    if (command === 'usetest' && message.author.id == '212640369261674496') {
+    if (command === 'use' && message.author.id == '212640369261674496') {
         if (!args[0] || !args[1]) {
             let aspas = "`"
             return message.channel.send(`Os parâmetros estão inválidos, utilize ${aspas}euse códigoDaCarta códigoDoItem${aspas}`)
         }
-        player.useItem(args[0], args[1], message) // itemID, cardID 
+        player.useItem(args[0], args[1], message) //  cardID, itemID
     }
 
 });
