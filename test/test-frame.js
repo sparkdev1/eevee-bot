@@ -17,20 +17,20 @@ async function findMalId(charName) {
     })
 }
 
-const createDropTemplate = async () => {
+const cardFrame = async () => {
 
-    const width = 270;
-    const height = 380;
+    const width = 274;
+    const height = 405;
 
     const canvas = createCanvas(width, height)
-    registerFont('./custom-fonts/PublicSans-Regular.otf', { family: 'Public Sans' })
+    registerFont('./custom-fonts/Amaranth-Bold.ttf', { family: 'Amaranth' })
     const ctx = canvas.getContext('2d')
 
     
-    ctx.drawImage(await loadImage('images/try3.png'), 20, 90, 230, 300)
+    ctx.drawImage(await loadImage('https://s4.anilist.co/file/anilistcdn/character/large/127209-IQuMFrofF1Nm.jpg'), 20, 90, 230, 300)
     ctx.drawImage(await loadImage('images/fury_tiger_frame.png'), null, null, 270, 400)
 
-    ctx.font = '40px Public Sans'
+    ctx.font = '40px Amaranth'
     ctx.fillStyle = "#000000";
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle';
@@ -38,45 +38,42 @@ const createDropTemplate = async () => {
 
     drawMultilineText(
         ctx,
-        "Kyoujurou Rengoku",
+        "Obito Uchiha",
         {
             rect: {
-                x: 135,
-                y: -125,
-                width: 220,
-                height: 380
+                x: 137,
+                y: 40,
+                width: 200,
+                height: 50
             },
-            font: 'Arial',
+            font: 'Amaranth',
             verbose: true,
             lineHeight: 1,
-            minFontSize: 20,
-            maxFontSize: 25
+            minFontSize: 28,
+            maxFontSize: 36
         }
     )
     drawMultilineText(
         ctx,
-        "Kimetsu no Yaiba",
+        "Demon Slayer: Kimetsu no Yaiba",
         {
             rect: {
-                x: 135,
-                y: 145,
-                width: 220,
-                height: 380
+                x: 137,
+                y: 360,
+                width: 250,
+                height: 100
             },
-            font: 'Arial',
+            font: 'Amaranth',
             verbose: true,
             lineHeight: 1,
-            minFontSize: 20,
-            maxFontSize: 25
+            minFontSize: 28,
+            maxFontSize: 36
         }
     )
     
-
     const fs = require('fs')
-    const out = fs.createWriteStream(__dirname + '/test.png')
-    const stream = canvas.createPNGStream()
-    stream.pipe(out)
-    out.on('finish', () => console.log('The Drop PNG file was created.'))
+    const buffer = canvas.toBuffer('image/png')
+    fs.writeFileSync(__dirname + '/test2.png', buffer)
 
 }
 
@@ -210,4 +207,4 @@ function drawMultilineText(ctx, text, opts) {
     return fontSize
 }
 
-createDropTemplate()
+cardFrame()
