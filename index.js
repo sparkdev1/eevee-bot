@@ -64,7 +64,9 @@ ${aspas}`)
             message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
             return
         } else {
+            if (message.author.id != '212640369261674496') {
             talkedRecently.add(message.author.id);
+            }
                     setTimeout(() => {
                         // Removes the user from the set after a minute
                         talkedRecently.delete(message.author.id);
@@ -191,7 +193,9 @@ ${aspas}`)
                         sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
                         return;
                     }, 20000)
+                    if (message.author.id != '212640369261674496') {
                     talkedRecently.add(message.author.id);
+                    }
                     setTimeout(() => {
                         // Removes the user from the set after a minute
                         talkedRecently.delete(message.author.id);
@@ -275,7 +279,7 @@ ${aspas}`)
         await player.searchPlayerItems(args[0] ?? message.author.id, args[1], args[2], message)
     }
 
-    if (command === 'use' && message.author.id == '212640369261674496') {
+    if (command === 'usetest' && message.author.id == '212640369261674496') {
         if (!args[0] || !args[1]) {
             let aspas = "`"
             return message.channel.send(`Os parâmetros estão inválidos, utilize ${aspas}euse códigoDaCarta códigoDoItem${aspas}`)
