@@ -40,7 +40,6 @@ client.on('messageCreate', async (message) => {
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
-
     if (command === 'help') {
         let aspas = "```"
         message.reply(`${aspas}eview ou ev - visualiza a última carta ou uma específica (ex: ev 23)${'\n'}${'\n'}
@@ -63,8 +62,11 @@ ${aspas}`)
         if (talkedRecently.has(message.author.id) && message.author.id != '212640369261674496') {
             let aspas = "`"
             message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
+            return
         } else {
+            if (message.author.id != '212640369261674496') {
             talkedRecently.add(message.author.id);
+            }
                     setTimeout(() => {
                         // Removes the user from the set after a minute
                         talkedRecently.delete(message.author.id);
@@ -191,7 +193,9 @@ ${aspas}`)
                         sendMessage.edit('_Esse drop expirou e não pode mais ser resgatado_')
                         return;
                     }, 20000)
+                    if (message.author.id != '212640369261674496') {
                     talkedRecently.add(message.author.id);
+                    }
                     setTimeout(() => {
                         // Removes the user from the set after a minute
                         talkedRecently.delete(message.author.id);
@@ -202,9 +206,10 @@ ${aspas}`)
                 return message.channel.send('Houve umm erro, perdão.')
             }
         }
-    } else {
+    } 
+    if (command === 'drop' || command === 'd' && talkedRecently.has(message.author.id)) {
         let aspas = "`"
-        message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
+        return message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
     }
 
     if (command === 'collection' || command === 'c') {
@@ -274,8 +279,12 @@ ${aspas}`)
         await player.searchPlayerItems(args[0] ?? message.author.id, args[1], args[2], message)
     }
 
-    if (command === 'use' && message.author.id == '212640369261674496') {
-        player.useItem(args[0], args[1]) // itemID, cardID 
+    if (command === 'usetest' && message.author.id == '212640369261674496') {
+        if (!args[0] || !args[1]) {
+            let aspas = "`"
+            return message.channel.send(`Os parâmetros estão inválidos, utilize ${aspas}euse códigoDaCarta códigoDoItem${aspas}`)
+        }
+        player.useItem(args[0], args[1], message) // itemID, cardID 
     }
 
 });

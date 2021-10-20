@@ -495,6 +495,36 @@ const searchPlayerItems = (id, client, args, message) => {
       message.reply('Houve um erro ao buscar');
   }
 }
+
+const useItem = function (cardId, itemId, message) {
+    const user = message.author
+    Card.findOne({
+      userID: user.id,
+      cardID: cardId
+    }, (err, data) => {
+      if (err) console.log(err)
+      if (!data) return message.reply('Essa carta não pertence a você ou não existe')
+      if (data) {
+        itemSchema.findOne({
+          userID: user.id,
+          itemID: itemId
+        }, (err, dataItem) => {
+          if (err) console.log(err)
+          if (!dataItem) return message.reply('Você não possui este item ou o item não existe.')
+          if (dataItem) {
+            message.channel.send('testado pau no seu rabo')
+
+
+
+            Card.findOneAndUpdate({
+              userID: user.id,
+              cardID: cardId
+            }, {cardItem: dataItem.id})
+          }
+        })
+      }
+    })
+}
 // Data.findOneAndUpdate({
 //     userID: player.id
 // }, (err, data) => {
@@ -515,6 +545,7 @@ const searchPlayerItems = (id, client, args, message) => {
 //         message.reply(`${player.username} tem :moneybag: ${data.money} gold.`)
 
 // })
+module.exports.useItem = useItem;
 module.exports.searchPlayerItems = searchPlayerItems;
 module.exports.showItemInfo = showItemInfo;
 module.exports.showShop = showShop;
