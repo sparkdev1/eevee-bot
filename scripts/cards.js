@@ -187,36 +187,10 @@ const searchLastCard = (client, message) => {
 }
 
 const searchCardCollection = (id, pageNumber = '1', message, keyWord = 0, ) => {
-    if (id.match(/\d+/g) !== null || id.match(/\d+/g)[0] < 10000000000) {
-
+    if (id.match(/\d+/g) !== null && id.match(/\d+/g)[0] < 10000000000 && pageNumber.match(/\d+/g) !== null) {
+        
         var page = 1;// 10 = page 1, 20 = page 2...
         page = (pageNumber.match(/\d+/g)[0] - 1) * 10
-        if(keyWord !== 0){
-
-            switch(keyWord) {
-                
-            }
-            Card.find({
-                userID: id.match(/\d+/g)[0]
-            }, {}, { skip: page, limit: 10, sort: { cardID: -1 } }, async (err, data) => {
-                if (err) console.log(err);
-
-                if (!data) {
-                    return message.reply('Nenhuma carta encontrada')
-                }
-                if (!id) {
-                    return message.reply('Usuário inválido.')
-                }
-
-                var string = [];
-                data.forEach((element, index, array) => {
-                    string.push(element.cardID + ' - ' + element.cardStars + ' - ' + element.cardName + ' - ' + element.cardFrom + '\n')
-                })
-                let aspas = "```"
-                return message.channel.send(`${aspas} # | ☆ | Nome     |  Anime ${'\n'}${'\n'}${string.join(`\n`)} ${aspas}`);
-            });
-            return
-        }
         Card.find({
             userID: id.match(/\d+/g)[0]
         }, {}, { skip: page, limit: 10, sort: { cardID: -1 } }, async (err, data) => {

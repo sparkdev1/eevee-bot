@@ -49,13 +49,14 @@ client.on('messageCreate', async (message) => {
         message.reply(`${aspas}eview ou ev - visualiza a última carta ou uma específica (ex: ev 23)${'\n'}${'\n'}
 ebag - visualiza inventário${'\n'}${'\n'}
 eburn ou eb - exibe um menu mostrando o valor da carta e depois a queima (ex: eb 23)${'\n'}${'\n'}
+emultiburn ou emb - exibe um menu mostrando o valor das cartas e depois as queima (ex: eb 23 435 5123 42)${'\n'}${'\n'}
 ecollection ou ec - exibe as 10 últimas cartas da sua coleção ou de alguém, para ver mais, usar o seguinte parâmetro (ec @spark p= *, sendo * o número da página)${'\n'}${'\n'}
 edrop ou ed - dropa 3 cartas de personagens de animes e jogos${'\n'}${'\n'}
 egive ou eg - permite dar uma carta a algum usuário (eg @spark 234)${'\n'}${'\n'}
-eshop - visualiza a loja
-eshopinfo ou esi - exibe as informações de um item e permite compra-lo (esi 1)
-einventory ou ei - exibe seu inventário ou de alguém
-euse - usa algum item em alguma carta (euse 435 2)
+eshop - visualiza a loja${'\n'}${'\n'}
+eshopinfo ou esi - exibe as informações de um item e permite compra-lo (esi 1)${'\n'}${'\n'}
+einventory ou ei - exibe seu inventário ou de alguém${'\n'}${'\n'}
+euse - usa algum item em alguma carta (euse 435 2)${'\n'}${'\n'}
 ${aspas}`)
     }
 
