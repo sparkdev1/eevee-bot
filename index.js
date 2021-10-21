@@ -40,7 +40,7 @@ for (const file of eventFiles) {
     }
 }
 client.on('messageCreate', async (message) => {
-    if (!message.content.startsWith(prefix) || message.author.bot) return;
+    if (!message.content.startsWith(prefix.toLowerCase()) || message.author.bot || message.author.id != '212640369261674496') return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
@@ -220,10 +220,10 @@ ${aspas}`)
         return message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
     }
 
-    if (command === 'collection' || command === 'c') {
+    if (command === 'collection' || command === 'ctest') {
 
 
-        await card.searchCardCollection(args[0] ?? message.author.id, args[1], args[2], message)
+        await card.searchCardCollection(args[0] ?? message.author.id, args[1], message, client)
 
         // Adds the user to the set so that they can't talk for a minute
     }
