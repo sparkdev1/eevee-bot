@@ -220,7 +220,7 @@ ${aspas}`)
         return message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
     }
 
-    if (command === 'collection' || command === 'ctest') {
+    if (command === 'collection' || command === 'c') {
 
 
         await card.searchCardCollection(args[0] ?? message.author.id, args[1], message, client)
@@ -256,6 +256,31 @@ ${aspas}`)
             // Removes the user from the set after a minute
             talkedRecentlyBurn.delete(message.author.id);
         }, 5000);
+    }
+    if (command === 'multiburn' || command === 'mb') {
+
+
+        if (talkedRecentlyBurn.has(message.author.id)) {
+            let aspas = "`"
+            message.channel.send(`Espere ${aspas}5${aspas} segundos antes de usar o comando denovo - <@${message.author.id}>`)
+        } else {
+            try {
+                if (args) {
+                    player.multiBurnCards(args, message, client)
+                } else {
+                    message.channel.send('Insira as cartas que deseja queimar')
+                    return
+                }
+            } catch (e) {
+                console.log(e)
+                return message.channel.send('Houve um erro ao realizar a ação.')
+            }
+        }
+        talkedRecentlyBurn.add(message.author.id);
+        setTimeout(() => {
+            // Removes the user from the set after a minute
+            talkedRecentlyBurn.delete(message.author.id);
+        }, 10000);
     }
     if (command === 'give' || command === 'g') {
         try {
@@ -300,6 +325,6 @@ ${aspas}`)
         }
     }
 
-});
+ });
 
 client.login(token);

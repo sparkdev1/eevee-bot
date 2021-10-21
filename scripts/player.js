@@ -192,6 +192,155 @@ const burnCards = (code, message, client) => {
   );
 };
 
+const multiBurnCards = (code, message, client) => {
+  var codes = []
+  code.forEach(element => {
+    codes.push(
+    element
+    )
+  });
+  Card.find(
+    {
+      userID: message.author.id,
+      cardID: {$in: codes}
+    },
+    (err, data) => {
+      if (err) {
+        message.channel.send("Essa carta não pertence a você ou não existe.");
+        return console.log(err);
+      }
+
+      if (!data) {
+        return message.reply("Essa carta não pertence a você ou não existe.");
+      }
+      if (!code) {
+        return message.reply("Por favor, utilize código de card válido.");
+      }
+      client.users.fetch(data[0].userID).then((user) => {
+
+        let cardName = data.cardName;
+        let cardCode = data.cardID;
+
+        let aspas = "`";
+
+        goldCalc = []
+        data.forEach(element => {
+          goldCalc.push(
+          parseInt(element.cardAttack) +
+          parseInt(element.cardDefense) +
+          parseInt(element.cardIntelligence))
+        });
+
+        starCalc = []
+        data.forEach(element => {
+          starCalc.push(
+          parseInt(element.cardStars))
+          });
+
+        var desc = []
+        data.forEach(element => {
+          desc.push(`${aspas}${element.cardID}${aspas} - ***${element.cardName}*** adquirida dia ${element.cardDateGet}`)
+        });
+        const reducer = (accumulator, curr) => accumulator + curr;
+        const exampleEmbed = new MessageEmbed()
+          .setColor("#ffffff")
+          .setTitle("Deseja queimar as seguintes cartas?")
+          .setDescription(
+            desc.join("\n")
+          )
+          .setThumbnail(user.avatarURL())
+          .addField(":star: Stars:", starCalc.reduce(reducer).toString())
+          .addField(":money_with_wings: Ouro:", goldCalc.reduce(reducer).toString())
+          .setTimestamp()
+          .setFooter(user.tag, user.avatarURL());
+        message.reply({ embeds: [exampleEmbed] }).then((sendMessage) => {
+          sendMessage.react("❌");
+          sendMessage.react("🔥");
+          const filter = (reaction, user) =>
+            ["❌", "🔥"].includes(reaction.emoji.name) &&
+            user.id === message.author.id;
+          const collector = sendMessage.createReactionCollector({
+            filter,
+            max: 1,
+            time: 10000,
+          });
+
+          collector.on("collect", async (reaction, user) => {
+            if (reaction.emoji.name === "❌" && user.id === message.author.id) {
+              sendMessage.edit({ embeds: [exampleEmbed.setColor("#ff0000").setTitle("Operação cancelada!")] });
+              return;
+            }
+            if (reaction.emoji.name === "🔥" && user.id === message.author.id) {
+              Card.findOneAndDelete(
+                {
+                  cardID: code,
+                },
+                (err) => {
+                  if (err) {
+                    message.channel.send(
+                      "Essa carta não pertence a você ou não existe."
+                    );
+                    return console.log(err);
+                  }
+                  if (!err) {
+                    Data.findOne(
+                      {
+                        userID: user.id,
+                      },
+                      (err, data) => {
+                        if (err) console.log(err);
+                        console.log(data);
+                        if (!data) {
+                          const newData = new Data({
+                            name: user.username,
+                            userID: user.id,
+                            lb: "all",
+                            money: 0,
+                            star: 0,
+                            daily: 0,
+                          });
+                          newData.save().catch((err) => console.log(err));
+                        }
+                        oldGold = parseInt(data.money);
+                        oldStar = parseInt(data.star);
+
+                        Data.updateOne(
+                          {
+                            userID: user.id,
+                          },
+                          {
+                            money: oldGold + goldCalc.reduce(reducer),
+                            star: oldStar + starCalc.reduce(reducer),
+                          },
+                          function (err, docs) {
+                            if (err) {
+                              console.log(err);
+                            } else {
+                              console.log("Updated Docs : ", docs);
+                            }
+                          }
+                        );
+                      }
+                    );
+
+                    sendMessage.edit({
+                      embeds: [exampleEmbed.setColor("#00ff11").setTitle("Operação concluída!")],
+                    });
+                    return;
+                  } else {
+                    console.log("Error removing :" + err);
+                  }
+                }
+              );
+            }
+          });
+        });
+      });
+    }
+  );
+};
+
+
 const burnLastCard = (message, client) => {
   Card.findOne(
     {
@@ -614,6 +763,7 @@ const useItem = async function (cardId, itemId, message) {
     //         message.reply(`${player.username} tem :moneybag: ${data.money} gold.`)
 
     // })
+    module.exports.multiBurnCards = multiBurnCards
     module.exports.useItem = useItem;
     module.exports.searchPlayerItems = searchPlayerItems;
     module.exports.showItemInfo = showItemInfo;
