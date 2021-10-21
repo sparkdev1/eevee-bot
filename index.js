@@ -11,6 +11,10 @@ const player = require("./scripts/player.js")
 
 
 mongoose.connect(mongoConst, { useNewUrlParser: true, useUnifiedTopology: true })
+cardSchema.findOne({},{},{ sort: { cardID: -1 }},(err, data) => fs.writeFile('./models/id.txt', (data.cardID + 1).toString(), (error) => {
+    if (error) throw err;
+    console.log(`Current ID is: ${data.cardID}`)
+}))
 console.log('Successfully connected to MongoDB')
 // Create a new client instance
 const client = new Client({
@@ -45,9 +49,13 @@ client.on('messageCreate', async (message) => {
         message.reply(`${aspas}eview ou ev - visualiza a última carta ou uma específica (ex: ev 23)${'\n'}${'\n'}
 ebag - visualiza inventário${'\n'}${'\n'}
 eburn ou eb - exibe um menu mostrando o valor da carta e depois a queima (ex: eb 23)${'\n'}${'\n'}
-ecollection ou ec - exibe as 10 últimas cartas da sua coleção ou de álguem, para ver mais, usar o seguinte parâmetro (ec @spark p= *, sendo * o número da página)${'\n'}${'\n'}
+ecollection ou ec - exibe as 10 últimas cartas da sua coleção ou de alguém, para ver mais, usar o seguinte parâmetro (ec @spark p= *, sendo * o número da página)${'\n'}${'\n'}
 edrop ou ed - dropa 3 cartas de personagens de animes e jogos${'\n'}${'\n'}
 egive ou eg - permite dar uma carta a algum usuário (eg @spark 234)${'\n'}${'\n'}
+eshop - visualiza a loja
+eshopinfo ou esi - exibe as informações de um item e permite compra-lo (esi 1)
+einventory ou ei - exibe seu inventário ou de alguém
+euse - usa algum item em alguma carta (euse 435 2)
 ${aspas}`)
     }
 
@@ -259,10 +267,10 @@ ${aspas}`)
     }
 
     if (command === 'shop') {
-        player.showShop(args[0], message, client)
+        player.showShop(args[0] ?? '1', message, client)
     }
 
-    if (command === 'shopinfo' || command === 'si' && message.author.id == '212640369261674496') {
+    if (command === 'shopinfo' || command === 'si') {
         if (args[0]) {
             try {
                 player.showItemInfo(args[0], message, client)
@@ -275,16 +283,21 @@ ${aspas}`)
         }
     }
 
-    if (command === 'inventory' || command === 'i' && message.author.id == '212640369261674496') {
+    if (command === 'inventory' || command === 'i') {
         await player.searchPlayerItems(args[0] ?? message.author.id, args[1], args[2], message)
     }
 
-    if (command === 'use' && message.author.id == '212640369261674496') {
+    if (command === 'use') {
         if (!args[0] || !args[1]) {
             let aspas = "`"
             return message.channel.send(`Os parâmetros estão inválidos, utilize ${aspas}euse códigoDaCarta códigoDoItem${aspas}`)
         }
+        try {
         player.useItem(args[0], args[1], message) //  cardID, itemID
+        } catch (e) {
+            console.log(e)
+            return message.reply('Houve algum erro')
+        }
     }
 
 });

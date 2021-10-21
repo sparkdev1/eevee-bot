@@ -1,5 +1,6 @@
 const Data = require("../models/data.js");
 const Card = require("../models/card.js");
+const cardScripts = require("../scripts/cards.js")
 const Shop = require("../models/shop.js");
 const { createCanvas, loadImage, registerFont } = require('canvas')
 const itemSchema = require('../models/item.js')
@@ -318,11 +319,11 @@ const burnLastCard = (message, client) => {
   );
 };
 
-const showShop = (page = '1', message, client) => {
-    if (page.match(/\d+/g) !== 0) {
-           (page.match(/\d+/g)[0] - 1) * 10
-        }
-  Shop.find({}, {}, {skip: page, limit: 10, sort: { cardID: -1 }}, (err, data) => {
+const showShop = (page, message, client) => {
+  if (page.match(/\d+/g) !== 0) {
+    (page.match(/\d+/g)[0] - 1) * 10
+  }
+  Shop.find({}, {}, { skip: page, limit: 10, sort: { cardID: -1 } }, (err, data) => {
     if (err) return console.log(err);
     if (!data) message.reply("Sem itens na loja");
     if (data) {
@@ -331,13 +332,13 @@ const showShop = (page = '1', message, client) => {
       data.forEach((element, index, array) => {
         string.push(
           element.itemID +
-            " - " +
-            element.type +
-            " - " +
-            element.price +
-            " - " +
-            element.name +
-            "\n"
+          " - " +
+          element.type +
+          " - " +
+          element.price +
+          " - " +
+          element.name +
+          "\n"
         );
       });
       let aspas = "```";
@@ -468,117 +469,57 @@ const showItemInfo = (id, message, client) => {
 const searchPlayerItems = (id, client, args, message) => {
   if (id.match(/\d+/g) !== null) {
 
-      var page = 0;// 10 = page 1, 20 = page 2...
-      switch (client) {
-          case 'p=':
-              page = (args.match(/\d+/g)[0] - 1) * 10
+    var page = 0;// 10 = page 1, 20 = page 2...
+    switch (client) {
+      case 'p=':
+        page = (args.match(/\d+/g)[0] - 1) * 10
+    }
+    itemSchema.find({
+      userID: id.match(/\d+/g)[0]
+    }, {}, { skip: page, limit: 10, }, async (err, data) => {
+      if (err) console.log(err);
+
+      if (!data) {
+        return message.reply('Nenhuma carta encontrada')
       }
-      itemSchema.find({
-          userID: id.match(/\d+/g)[0]
-      }, {}, { skip: page, limit: 10, }, async (err, data) => {
-          if (err) console.log(err);
+      if (!id) {
+        return message.reply('Usuário inválido.')
+      }
 
-          if (!data) {
-              return message.reply('Nenhuma carta encontrada')
-          }
-          if (!id) {
-              return message.reply('Usuário inválido.')
-          }
-
-          var string = [];
-          data.forEach((element, index, array) => {
-              string.push(element.itemID + ' - ' + element.type + ' - ' + element.name + '\n')
-          })
-          let aspas = "```"
-          message.channel.send(`${aspas} # | Tipo | Nome     |${'\n'}${'\n'}${string.join(`\n`)} ${aspas}`);
-      });
+      var string = [];
+      data.forEach((element, index, array) => {
+        string.push(element.itemID + ' - ' + element.type + ' - ' + element.name + '\n')
+      })
+      let aspas = "```"
+      message.channel.send(`${aspas} # | Tipo | Nome     |${'\n'}${'\n'}${string.join(`\n`)} ${aspas}`);
+    });
   } else {
-      message.reply('Houve um erro ao buscar');
+    message.reply('Houve um erro ao buscar');
   }
 }
 
-const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
-
-  const width = 274;
-  const height = 405;
-
-  const canvas = createCanvas(width, height)
-  registerFont('./custom-fonts/Amaranth-Bold.ttf', { family: 'Amaranth' })
-  const ctx = canvas.getContext('2d')
-
-  
-  ctx.drawImage(await loadImage(cardPhoto), 20, 90, 230, 300)
-  ctx.drawImage(await loadImage(itemPhoto), null, null, 270, 400)
-
-  ctx.font = 'Amaranth'
-  ctx.fillStyle = "#000000";
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle';
-
-
-  drawMultilineText(
-      ctx,
-      `${cardName}`,
-      {
-          rect: {
-              x: 137,
-              y: 40,
-              width: 200,
-              height: 50
-          },
-          font: 'Amaranth',
-          verbose: true,
-          lineHeight: 1,
-          minFontSize: 25,
-          maxFontSize: 36
-      }
-  )
-  drawMultilineText(
-      ctx,
-      `${cardFrom}`,
-      {
-          rect: {
-              x: 137,
-              y:290,
-              width: 180,
-              height: 50
-          },
-          font: 'Amaranth',
-          verbose: true,
-          lineHeight: 1,
-          minFontSize: 22,
-          maxFontSize: 36
-      }
-  )
-  
-  const fs = require('fs')
-  const buffer = canvas.toBuffer('image/png')
-  fs.writeFileSync(__dirname + '/framedCard.png', buffer)
-  return 
-
-}
 
 const useItem = async function (cardId, itemId, message) {
-    const aspas = "`"
-    const user = message.author
-    Card.findOne({
-      userID: user.id,
-      cardID: cardId
-    }, (err, data) => {
-      if (err) console.log(err)
-      if (!data) return message.reply('Essa carta não pertence a você ou não existe')
-      if (data) {
-        itemSchema.findOne({
-          userID: user.id,
-          itemID: itemId
-        }, async (err, dataItem) => {
-          if (err) console.log(err)
-          if (!dataItem) return message.reply('Você não possui este item ou o item não existe.')
-          if (dataItem) {
+  const aspas = "`"
+  const user = message.author
+  Card.findOne({
+    userID: user.id,
+    cardID: cardId
+  }, (err, data) => {
+    if (err) console.log(err)
+    if (!data) return message.reply('Essa carta não pertence a você ou não existe')
+    if (data) {
+      itemSchema.findOne({
+        userID: user.id,
+        itemID: itemId
+      }, async (err, dataItem) => {
+        if (err) console.log(err)
+        if (!dataItem) return message.reply('Você não possui este item ou o item não existe.')
+        if (dataItem) {
 
-            await cardFrame(data.cardName, data.cardFrom, data.cardPhoto, dataItem.photo)
-            const file = new MessageAttachment(`./scripts/framedCard.png`);
-            const exampleEmbed = new MessageEmbed()
+          await cardScripts.cardFrame(data.cardName, data.cardFrom, data.cardPhoto, dataItem.photo)
+          const file = new MessageAttachment(`./scripts/framedCard.png`);
+          const exampleEmbed = new MessageEmbed()
             .setColor("#ffffff")
             .setTitle(`Deseja usar ${dataItem.name} em #${aspas}${data.cardID}${aspas}?`)
             .setDescription(
@@ -586,147 +527,97 @@ const useItem = async function (cardId, itemId, message) {
             )
             .setImage(`attachment://framedCard.png`);
 
-            message.channel.send({ embeds: [exampleEmbed], files: [file] })
+          message.channel.send({ embeds: [exampleEmbed], files: [file] }).then((sendMessage) => {
+            sendMessage.react("❌");
+            sendMessage.react("✅");
+            const filter = (reaction, user) =>
+              ["❌", "✅"].includes(reaction.emoji.name) &&
+              user.id === message.author.id;
+            const collector = sendMessage.createReactionCollector({
+              filter,
+              max: 1,
+              time: 10000,
+            });
 
+            collector.on("collect", async (reaction, user) => {
+              if (
+                reaction.emoji.name === "❌" &&
+                user.id === message.author.id
+              ) {
+                return sendMessage.edit({
+                  embeds: [exampleEmbed.setColor("#ff0000").setTitle('Operação cancelada!')],
+                });
 
+              }
+              if (
+                reaction.emoji.name === "✅" &&
+                user.id === message.author.id
+              ) {
 
-            Card.findOneAndUpdate({
-              userID: user.id,
-              cardID: cardId
-            }, {cardItem: dataItem.id})
-          }
-        })
-      }
-    })
-}
-function drawMultilineText(ctx, text, opts) {
-
-  // Default options
-  if (!opts)
-      opts = {}
-  if (!opts.font)
-      opts.font = 'sans-serif'
-  if (typeof opts.stroke == 'undefined')
-      opts.stroke = false
-  if (typeof opts.verbose == 'undefined')
-      opts.verbose = false
-  if (!opts.rect)
-      opts.rect = {
-          x: 0,
-          y: 0,
-          width: ctx.canvas.width,
-          height: ctx.canvas.height
-      }
-  if (!opts.lineHeight)
-      opts.lineHeight = 1.1
-  if (!opts.minFontSize)
-      opts.minFontSize = 30
-  if (!opts.maxFontSize)
-      opts.maxFontSize = 100
-  // Default log function is console.log - Note: if verbose il false, nothing will be logged anyway
-  if (!opts.logFunction)
-      opts.logFunction = function (message) { console.log(message) }
-
-
-  const words = require('words-array')(text)
-  if (opts.verbose) opts.logFunction('Text contains ' + words.length + ' words')
-  var lines = []
-  let y;  //New Line
-
-  // Finds max font size  which can be used to print whole text in opts.rec
-
-  
-  let lastFittingLines;                       // declaring 4 new variables (addressing issue 3)
-  let lastFittingFont;
-  let lastFittingY;
-  let lastFittingLineHeight;
-  for (var fontSize = opts.minFontSize; fontSize <= opts.maxFontSize; fontSize++) {
-
-      // Line height
-      var lineHeight = fontSize * opts.lineHeight
-
-      // Set font for testing with measureText()
-      ctx.font = ' ' + fontSize + 'px ' + opts.font
-
-      // Start
-      var x = opts.rect.x;
-      y = lineHeight; //modified line        // setting to lineHeight as opposed to fontSize (addressing issue 1)
-      lines = []
-      var line = ''
-
-      // Cycles on words
-
-     
-      for (var word of words) {
-          // Add next word to line
-          var linePlus = line + word + ' '
-          // If added word exceeds rect width...
-          if (ctx.measureText(linePlus).width > (opts.rect.width)) {
-              // ..."prints" (save) the line without last word
-              lines.push({ text: line, x: x, y: y })
-              // New line with ctx last word
-              line = word + ' '
-              y += lineHeight
-          } else {
-              // ...continues appending words
-              line = linePlus
-          }
-      }
-
-      // "Print" (save) last line
-      lines.push({ text: line, x: x, y: y })
-
-      // If bottom of rect is reached then breaks "fontSize" cycle
-          
-      if (y > opts.rect.height)                                           
-          break;
-          
-      lastFittingLines = lines;               // using 4 new variables for 'step back' (issue 3)
-      lastFittingFont = ctx.font;
-      lastFittingY = y;
-      lastFittingLineHeight = lineHeight;
-
-  }
-
-  lines = lastFittingLines;                   // assigning last fitting values (issue 3)                    
-  ctx.font = lastFittingFont;                                                                   
-  if (opts.verbose) opts.logFunction("Font used: " + ctx.font);
-  const offset = opts.rect.y - lastFittingLineHeight / 2 + (opts.rect.height - lastFittingY) / 2;     // modifying calculation (issue 2)
-  for (var line of lines)
-      // Fill or stroke
-      if (opts.stroke)
-          ctx.strokeText(line.text.trim(), line.x, line.y + offset) //modified line
-      else
-          ctx.fillText(line.text.trim(), line.x, line.y + offset) //modified line
-
-  // Returns font size
-  return fontSize
+                Card.updateOne(
+                  {
+                    cardID: data.cardID,
+                  },
+                  {
+                    cardFrame: dataItem.itemID,
+                    framePhoto: dataItem.photo
+                  },
+                  function (err, docs) {
+                    if (err) {
+                      console.log(err);
+                    } else {
+                      console.log("Updated Docs : ", docs);
+                    }
+                  }
+                );
+                itemSchema.findOneAndDelete(
+                  {
+                    userID: data.userID,
+                    itemID: dataItem.itemID,
+                  },
+                  (err) => {
+                    if (err) {
+                      message.channel.send(
+                        "Você não tem esse item, ou ocorreu um erro."
+                      );
+                      return console.log(err);
+                    }})
+                sendMessage.edit({
+                    embeds: [exampleEmbed.setColor("#00ff11").setTitle(`${dataItem.type} inserido com sucesso em #${aspas}${data.cardID}${aspas} ${data.cardName}`)],
+                }); return 
+              }
+            })
+          })
+        }
+      })
+    }
+  })
 }
 
-// Data.findOneAndUpdate({
-//     userID: player.id
-// }, (err, data) => {
-//     if (err) console.log(err);
+    // Data.findOneAndUpdate({
+    //     userID: player.id
+    // }, (err, data) => {
+    //     if (err) console.log(err);
 
-//     if (!data) {
-//         const newData = new Data({
-//             name: player.username,
-//             userID: player.id,
-//             lb: "all",
-//             money: 0,
-//             daily: 0,
-//         })
-//         newData.save().catch(err => console.log(err));
-//         message.reply(`${player.username} tem :moneybag: 0 gold.`)
-//     } else
+    //     if (!data) {
+    //         const newData = new Data({
+    //             name: player.username,
+    //             userID: player.id,
+    //             lb: "all",
+    //             money: 0,
+    //             daily: 0,
+    //         })
+    //         newData.save().catch(err => console.log(err));
+    //         message.reply(`${player.username} tem :moneybag: 0 gold.`)
+    //     } else
 
-//         message.reply(`${player.username} tem :moneybag: ${data.money} gold.`)
+    //         message.reply(`${player.username} tem :moneybag: ${data.money} gold.`)
 
-// })
-module.exports.useItem = useItem;
-module.exports.searchPlayerItems = searchPlayerItems;
-module.exports.showItemInfo = showItemInfo;
-module.exports.showShop = showShop;
-module.exports.burnCards = burnCards;
-module.exports.burnLastCard = burnLastCard;
-module.exports.playerBalance = playerBalance;
+    // })
+    module.exports.useItem = useItem;
+    module.exports.searchPlayerItems = searchPlayerItems;
+    module.exports.showItemInfo = showItemInfo;
+    module.exports.showShop = showShop;
+    module.exports.burnCards = burnCards;
+    module.exports.burnLastCard = burnLastCard;
+    module.exports.playerBalance = playerBalance;

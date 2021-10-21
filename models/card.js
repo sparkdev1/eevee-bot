@@ -31,6 +31,8 @@ const dataSchema = mongoose.Schema({
     cardDefense: String,
     cardIntelligence: String,
     cardDateGet: String,
+    cardFrame: Number,
+    framePhoto: String,
     cardPhoto: String,
 })
 
