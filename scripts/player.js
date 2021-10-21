@@ -271,9 +271,10 @@ const multiBurnCards = (code, message, client) => {
               return;
             }
             if (reaction.emoji.name === "🔥" && user.id === message.author.id) {
-              Card.findOneAndDelete(
+              Card.deleteMany(
                 {
-                  cardID: code,
+                  userID: message.author.id,
+                  cardID: {$in: codes}
                 },
                 (err) => {
                   if (err) {
