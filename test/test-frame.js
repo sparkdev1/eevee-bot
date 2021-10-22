@@ -21,7 +21,7 @@ async function findMalId(charName) {
     })
 }
 
-const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
+const cardGenerateFrameMorph = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
 
     const width = 274;
     const height = 405;
@@ -88,7 +88,7 @@ const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
   
   }
 
-  const cardMorph = async () => {
+  const cardMorphedFinal = async () => {
 
     const width = 274;
     const height = 405;
@@ -263,5 +263,5 @@ morph = [
     [96, 96, 96], //gray
 ]
 
-cardFrame('Zero Two', 'Darling in the FRANXX', 'https://cdn.myanimelist.net/images/characters/13/303917.jpg', 'images/cherry_blossom_frame.png')
-cardMorph()
+cardGenerateFrameMorph('Zero Two', 'Darling in the FRANXX', 'https://cdn.myanimelist.net/images/characters/13/303917.jpg', 'images/comemoration_frame.png')
+cardMorphedFinal()
