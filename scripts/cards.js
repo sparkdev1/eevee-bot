@@ -343,6 +343,90 @@ const giveCard = (toUser, code, message, client) => {
 
 }
 
+const cardMorph = async function (cardId, itemId, message) {
+    const aspas = "`"
+    const user = message.author
+    Card.findOne({
+      userID: user.id,
+      cardID: cardId
+    }, (err, data) => {
+      if (err) console.log(err)
+      if (!data) return message.reply('Essa carta não pertence a você ou não existe')
+      if (data) {
+        itemSchema.findOne({
+          userID: user.id,
+          itemID: itemId
+        }, async (err, dataItem) => {
+          if (err) console.log(err)
+          if (!dataItem) return message.reply('Você não possui este item ou o item não existe.')
+          if (dataItem) {
+  
+            await cardScripts.cardFrame(data.cardName, data.cardFrom, data.cardPhoto, dataItem.photo)
+            const file = new MessageAttachment(`./scripts/cardMorph.png`);
+            const exampleEmbed = new MessageEmbed()
+              .setColor("#ffffff")
+              .setTitle(`Deseja usar ${dataItem.name} em #${aspas}${data.cardID}${aspas}?`)
+              .setDescription(
+                `${data.cardName} receberá ${dataItem.type} - ${dataItem.name}${"\n"}${"\n"}`
+              )
+              .setImage(`attachment://cardMorph.png`);
+  
+            message.channel.send({ embeds: [exampleEmbed], files: [file] }).then((sendMessage) => {
+              sendMessage.react("❌");
+              sendMessage.react("✅");
+              const filter = (reaction, user) =>
+                ["❌", "✅"].includes(reaction.emoji.name) &&
+                user.id === message.author.id;
+              const collector = sendMessage.createReactionCollector({
+                filter,
+                max: 1,
+                time: 10000,
+              });
+  
+              collector.on("collect", async (reaction, user) => {
+                if (
+                  reaction.emoji.name === "❌" &&
+                  user.id === message.author.id
+                ) {
+                  return sendMessage.edit({
+                    embeds: [exampleEmbed.setColor("#ff0000").setTitle('Operação cancelada!')],
+                  });
+  
+                }
+                if (
+                  reaction.emoji.name === "✅" &&
+                  user.id === message.author.id
+                ) {
+  
+                  Card.updateOne(
+                    {
+                      cardID: data.cardID,
+                    },
+                    {
+                      cardFrame: dataItem.itemID,
+                      framePhoto: dataItem.photo
+                    },
+                    function (err, docs) {
+                      if (err) {
+                        console.log(err);
+                      } else {
+                        console.log("Updated Docs : ", docs);
+                      }
+                    }
+                  );
+                  
+                  sendMessage.edit({
+                      embeds: [exampleEmbed.setColor("#00ff11").setTitle(`#${aspas}${data.cardID}${aspas} ${data.cardName} foi metamorfado com sucesso `)],
+                  }); return 
+                }
+              })
+            })
+          }
+        })
+      }
+    })
+  }
+
 function random(min, max) {
     return Math.ceil(Math.random() * (max - min) + min);
 }

@@ -8,6 +8,10 @@ async function lookPics(id) {
     })
 }
 
+function random(min, max) {
+    return Math.ceil(Math.random() * (max - min) + min);
+}
+
 async function findMalId(charName) {
     return requestPromise(`https://api.jikan.moe/v3/character/${id}/pictures`).then(response => {
         if (response.statusCode === 200) {
@@ -27,9 +31,9 @@ const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
     const ctx = canvas.getContext('2d')
   
     
-    ctx.drawImage(await loadImage(cardPhoto), 20, 90, 230, 300)
+    
     ctx.drawImage(await loadImage(itemPhoto), null, null, 270, 400)
-  
+   
     ctx.font = 'Amaranth'
     ctx.fillStyle = "#000000";
     ctx.textAlign = 'center'
@@ -70,6 +74,12 @@ const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
             maxFontSize: 36
         }
     )
+
+    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    invertColors(imageData.data, morph[random(1, morph.length - 1)])
+
+    ctx.putImageData(imageData, 0, 0)
     
     const fs = require('fs')
     const buffer = canvas.toBuffer('image/png')
@@ -78,7 +88,36 @@ const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
   
   }
 
+  const cardMorph = async () => {
 
+    const width = 274;
+    const height = 405;
+  
+    const canvas = createCanvas(width, height)
+    registerFont('./custom-fonts/Amaranth-Bold.ttf', { family: 'Amaranth' })
+    const ctx = canvas.getContext('2d')
+  
+    
+    ctx.drawImage(await loadImage('https://cdn.myanimelist.net/images/characters/4/356459.jpg'), 20, 90, 220, 290)
+    ctx.drawImage(await loadImage('test/framedCard.png'), null, null, 270, 400)
+
+    
+    const fs = require('fs')
+    const buffer = canvas.toBuffer('image/png')
+    fs.writeFileSync(__dirname + '/card.png', buffer)
+    return 
+
+}
+
+
+
+  function invertColors(data, morph = [0,204,251]) {
+    for (var i = 0; i < data.length; i+= 4) {
+      data[i] = data[i] + morph[0]; // Invert Red
+      data[i+1] = data[i+1] + morph[1]; // Invert Green
+      data[i+2] = data[i+2] + morph[2]; // Invert Blue
+    }
+  }
 
 
 
@@ -208,4 +247,21 @@ function drawMultilineText(ctx, text, opts) {
     return fontSize
 }
 
-cardFrame('Ken Kaneki', 'Tokyo Ghoul', 'https://s4.anilist.co/file/anilistcdn/character/large/b87275-mb13EWZBdbh3.png', 'images/cherry_blossom_frame.png')
+morph = [
+    [204, 0, 0], //red
+    [204, 102, 0], //orange
+    [204, 204, 0], //yellow
+    [102, 204, 0], //green-yellow
+    [0, 204, 0], //green
+    [0, 204, 102],  //green-blue
+    [0, 204, 255], //bright-blue
+    [0, 128, 255], //Blue
+    [0, 0, 255], //darkblue
+    [127, 0, 255], //purple
+    [255, 0 ,255], //pink
+    [102, 0, 51], //wine
+    [96, 96, 96], //gray
+]
+
+cardFrame('Zero Two', 'Darling in the FRANXX', 'https://cdn.myanimelist.net/images/characters/13/303917.jpg', 'images/cherry_blossom_frame.png')
+cardMorph()
