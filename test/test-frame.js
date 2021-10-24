@@ -63,7 +63,7 @@ const cardGenerateFrameMorph = async (cardName, cardFrom, cardPhoto, itemPhoto) 
         {
             rect: {
                 x: 137,
-                y: 300,
+                y: 305,
                 width: 180,
                 height: 50
             },
@@ -98,7 +98,7 @@ const cardGenerateFrameMorph = async (cardName, cardFrom, cardPhoto, itemPhoto) 
     const ctx = canvas.getContext('2d')
   
     
-    ctx.drawImage(await loadImage('https://cdn.myanimelist.net/images/characters/4/356459.jpg'), 20, 90, 220, 290)
+    ctx.drawImage(await loadImage('https://cdn.myanimelist.net/images/characters/10/320409.jpg'), 0, 0, 230, 300, 25, 100, 220, 250)
     ctx.drawImage(await loadImage('test/framedCard.png'), null, null, 270, 400)
 
     
@@ -111,7 +111,7 @@ const cardGenerateFrameMorph = async (cardName, cardFrom, cardPhoto, itemPhoto) 
 
 
 
-  function invertColors(data, morph = [0,204,251]) {
+  function invertColors(data, morph = []) {
     for (var i = 0; i < data.length; i+= 4) {
       data[i] = data[i] + morph[0]; // Invert Red
       data[i+1] = data[i+1] + morph[1]; // Invert Green
@@ -263,5 +263,5 @@ morph = [
     [96, 96, 96], //gray
 ]
 
-cardGenerateFrameMorph('Zero Two', 'Darling in the FRANXX', 'https://cdn.myanimelist.net/images/characters/13/303917.jpg', 'images/comemoration_frame.png')
+cardGenerateFrameMorph('Stella Vermillion', 'Rakudai Kishi no Cavalry', 'https://cdn.myanimelist.net/images/characters/9/284122.jpg', 'images/water_revolution_frame.png')
 cardMorphedFinal()

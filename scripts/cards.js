@@ -14,7 +14,7 @@ const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
     const ctx = canvas.getContext('2d')
   
   
-    ctx.drawImage(await loadImage(cardPhoto), 20, 90, 230, 300)
+    ctx.drawImage(await loadImage(cardPhoto), 0, 0, 230, 300, 25, 100, 220, 250)
     ctx.drawImage(await loadImage(itemPhoto), null, null, 270, 400)
   
     ctx.font = 'Amaranth'
@@ -25,7 +25,7 @@ const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
   
     drawMultilineText(
       ctx,
-      `${cardName}`,
+      `${cardName.substr(0,32)}`,
       {
         rect: {
           x: 137,

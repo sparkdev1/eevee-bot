@@ -246,7 +246,7 @@ const multiBurnCards = (code, message, client) => {
           .setColor("#ffffff")
           .setTitle("Deseja queimar as seguintes cartas?")
           .setDescription(
-            desc.join("\n")
+            desc.join("\n").substr(0, 4095)
           )
           .setThumbnail(user.avatarURL())
           .addField(":star: Stars:", starCalc.reduce(reducer).toString())
