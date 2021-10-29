@@ -21,7 +21,7 @@ async function findMalId(charName) {
     })
 }
 
-const cardGenerateFrameMorph = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
+const cardGenerateFrameMorph = async (cardName, cardFrom, itemPhoto, morphId = random(1, morph.length - 1)) => {
 
     const width = 274;
     const height = 405;
@@ -42,49 +42,49 @@ const cardGenerateFrameMorph = async (cardName, cardFrom, cardPhoto, itemPhoto) 
   
     drawMultilineText(
         ctx,
-        `${cardName}`,
+        `${cardName.substr(0,32)}`,
         {
-            rect: {
-                x: 137,
-                y: 40,
-                width: 200,
-                height: 50
-            },
-            font: 'Amaranth',
-            verbose: true,
-            lineHeight: 1,
-            minFontSize: 25,
-            maxFontSize: 36
+          rect: {
+            x: 137,
+            y: 40,
+            width: 200,
+            height: 50
+          },
+          font: 'Amaranth',
+          verbose: true,
+          lineHeight: 1,
+          minFontSize: 25,
+          maxFontSize: 36
         }
-    )
-    drawMultilineText(
+      )
+      drawMultilineText(
         ctx,
-        `${cardFrom}`,
+        `${cardFrom.substr(0,32)}`,
         {
-            rect: {
-                x: 137,
-                y: 305,
-                width: 180,
-                height: 50
-            },
-            font: 'Amaranth',
-            verbose: true,
-            lineHeight: 1,
-            minFontSize: 22,
-            maxFontSize: 36
+          rect: {
+            x: 137,
+            y: 300,
+            width: 180,
+            height: 50
+          },
+          font: 'Amaranth',
+          verbose: true,
+          lineHeight: 1,
+          minFontSize: 22,
+          maxFontSize: 36
         }
-    )
+      )
 
     var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    morphCollor = random(1, morph.length - 1)
+    morphCollor = morphId
     invertColors(imageData.data, morph[morphCollor])
 
     ctx.putImageData(imageData, 0, 0)
     
     const fs = require('fs')
     const buffer = canvas.toBuffer('image/png')
-    fs.writeFileSync(__dirname + '/framedCard.png', buffer)
+    fs.writeFileSync(__dirname + '/frameOfCard.png', buffer)
     return morphCollor
   
 }
@@ -100,12 +100,12 @@ const cardGenerateFrameMorph = async (cardName, cardFrom, cardPhoto, itemPhoto) 
   
     
     ctx.drawImage(await loadImage(cardPhoto), 0, 0, 230, 300, 25, 100, 220, 250)
-    ctx.drawImage(await loadImage('test/framedCard.png'), null, null, 270, 400)
+    ctx.drawImage(await loadImage('./scripts/frameOfCard.png'), null, null, 270, 400)
 
     
     const fs = require('fs')
     const buffer = canvas.toBuffer('image/png')
-    fs.writeFileSync(__dirname + '/card.png', buffer)
+    fs.writeFileSync(__dirname + '/morphedCard.png', buffer)
     return 
 
 }
@@ -269,8 +269,6 @@ morph = [
     [102, 0, 51], //wine
     [96, 96, 96], //gray
 ]
-cardGenerateFrameMorph('Obanai Iguro', 'Demon Slayer: Kimetsu no Yaiba', 'https://cdn.myanimelist.net/images/characters/9/284122.jpg', 'images/the_temple_frame.png')
-cardMorphedFinal('https://cdn.myanimelist.net/images/characters/6/387508.jpg')
 
 module.exports.cardGenerateFrameMorph = cardGenerateFrameMorph
 module.exports.cardMorphedFinal = cardMorphedFinal

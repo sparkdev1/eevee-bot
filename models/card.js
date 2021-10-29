@@ -33,6 +33,7 @@ const dataSchema = mongoose.Schema({
     cardDateGet: String,
     cardFrame: Number,
     framePhoto: String,
+    morphID: Number,
     cardPhoto: String,
 })
 

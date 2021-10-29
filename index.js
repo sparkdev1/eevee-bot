@@ -4,10 +4,12 @@ const { Client, Collection, Intents, MessageEmbed, MessageAttachment, ReactionCo
 const { token, prefix, mongoConst } = require('./config.json');
 const mongoose = require('mongoose');
 const cardSchema = require('./models/card')
+const dataSchema = require('./models/data.js')
 const card = require('./scripts/cards.js');
 const char = require('./scripts/characters.js');
 const mal = require('./scripts/mal.js')
-const player = require("./scripts/player.js")
+const player = require("./scripts/player.js");
+const { send } = require('process');
 
 
 mongoose.connect(mongoConst, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -325,7 +327,86 @@ ${aspas}`)
             return message.reply('Houve algum erro')
         }
     }
+    if (command === "morph" || command === "m") {
+      if (!args[0]) {
+        let aspas = "`";
+        return message.channel.send(
+          `Os parâmetros estão inválidos, utilize ${aspas}emorph códigoDaCarta${aspas}`
+        );
+      }
+      message.channel
+        .send(`Deseja começar o processo de metamorfose nessa carta?${'\n'}${'\n'}:money_with_wings: 500 :star: 5 `)
+        .then((sendMessage) => {
+          sendMessage.react("❌");
+          sendMessage.react("✅");
+          const filter = (reaction, user) =>
+            ["❌", "✅"].includes(reaction.emoji.name) &&
+            user.id === message.author.id;
+          const collector = sendMessage.createReactionCollector({
+            filter,
+            max: 1,
+            time: 10000,
+          });
 
- });
+          collector.on("collect", async (reaction, user) => {
+            if (reaction.emoji.name === "❌" && user.id === message.author.id) {
+              message.channel.send("Operação cancelada!");
+              return;
+            }
+            if (reaction.emoji.name === "✅" && user.id === message.author.id) {
+                dataSchema.findOne(
+                {
+                  userID: user.id,
+                },
+                (err, dataUser) => {
+                  if (err) console.log(err);
+                  console.log(dataUser);
+                  if (!dataUser) {
+                    const newData = new Data({
+                      name: user.username,
+                      userID: user.id,
+                      lb: "all",
+                      money: 0,
+                      star: 0,
+                      daily: 0,
+                    });
+                    newData.save().catch((err) => console.log(err));
+                  }
+                  if (
+                    parseInt(dataUser.money) >= 500 &&
+                    parseInt(dataUser.star) >= 5
+                  ) {
+                    oldGold = parseInt(dataUser.money);
+                    oldStar = parseInt(dataUser.star);
+                    dataSchema.updateOne(
+                      {
+                        userID: user.id,
+                      },
+                      {
+                        money: oldGold - 500,
+                        star: oldStar - 5,
+                      },
+                      function (err, docs) {
+                        if (err) {
+                          console.log(err);
+                        } else {
+                          console.log("Updated Docs : ", docs);
+                        }
+                      }
+                    );
+                  } else {
+                    return message.reply(
+                      "Dinheiro ou estrelas insuficientes para esta ação."
+                    );
+                  }
+                }
+              );
+              card.cardMorph(args[0], message);
+            }
+          });
+        });
+    }
+
+});
 
 client.login(token);

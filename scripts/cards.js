@@ -2,6 +2,7 @@ const { Client, Collection, Intents, MessageEmbed, MessageAttachment } = require
 const fs = require('fs')
 const Card = require('../models/card.js')
 const Data = require("../models/data.js");
+const morph = require("./morph.js")
 const { createCanvas, loadImage, registerFont } = require('canvas')
 
 const cardFrame = async (cardName, cardFrom, cardPhoto, itemPhoto) => {
@@ -90,6 +91,26 @@ const searchSpecificCard = (code, client, message) => {
             for (let i = 1; i <= data.cardStars; i++) {
                 cardStarsE += ":star: "
             }
+
+            if(data.morphID) {
+              await morph.cardGenerateFrameMorph(data.cardName, data.cardFrom, data.framePhoto, data.morphID)
+              await morph.cardMorphedFinal(data.cardPhoto)
+              cardPhoto = 'morphedCard.png'
+              const file = new MessageAttachment(`./scripts/morphedCard.png`);
+              let cardAttack = data.cardAttack
+              let cardDefense = data.cardDefense
+              let cardIntelligence = data.cardIntelligence
+              const exampleEmbed = new MessageEmbed()
+                  .setColor("#fa5700")
+                  .setAuthor(`${cardCode} owned by ${user.username}`)
+                  .setThumbnail(user.avatarURL())
+                  .addFields({ name: 'Stars', value: cardStarsE }, { name: '\u200b', value: '\u200b', inline: false }, { name: 'Ataque     ', value: `***:crossed_swords: ${cardAttack}***`, inline: true }, { name: 'Defesa     ', value: `***:shield: ${cardDefense}***`, inline: true }, { name: 'Inteligência     ', value: `***:books: ${cardIntelligence}***`, inline: true },)
+                  .setImage('attachment://morphedCard.png')
+                  .setTimestamp()
+                  .setFooter(user.tag, user.avatarURL());
+              return message.reply({ embeds: [exampleEmbed], files: [file] })
+            }
+
             if(data.cardFrame) {
                 await cardFrame(data.cardName, data.cardFrom, data.cardPhoto, data.framePhoto)
                 cardPhoto = 'framedCard.png'
@@ -343,68 +364,100 @@ const giveCard = (toUser, code, message, client) => {
 
 }
 
-const cardMorph = async function (cardId, itemId, message) {
+const cardMorph = async function (cardId, message) {
     const aspas = "`"
     const user = message.author
     Card.findOne({
       userID: user.id,
       cardID: cardId
-    }, (err, data) => {
+    }, async (err, data) => {
       if (err) console.log(err)
       if (!data) return message.reply('Essa carta não pertence a você ou não existe')
       if (data) {
-        itemSchema.findOne({
-          userID: user.id,
-          itemID: itemId
-        }, async (err, dataItem) => {
           if (err) console.log(err)
-          if (!dataItem) return message.reply('Você não possui este item ou o item não existe.')
-          if (dataItem) {
-  
-            await cardScripts.cardFrame(data.cardName, data.cardFrom, data.cardPhoto, dataItem.photo)
-            const file = new MessageAttachment(`./scripts/cardMorph.png`);
+          if (!data) return message.reply('Você não possui este item ou o item não existe.')
+          if (!data.cardFrame) return message.reply('Essa carta não possui moldura para que possa ser metamofada.')
+            var morphId = await morph.cardGenerateFrameMorph(data.cardName, data.cardFrom, data.framePhoto)
+            await morph.cardMorphedFinal(data.cardPhoto)
+
+            const file = new MessageAttachment(`./scripts/morphedCard.png`);
             const exampleEmbed = new MessageEmbed()
               .setColor("#ffffff")
-              .setTitle(`Deseja usar ${dataItem.name} em #${aspas}${data.cardID}${aspas}?`)
+              .setTitle(`Deseja concluir a metamorfose em #${aspas}${data.cardID}${aspas} - ${data.cardName}?`)
               .setDescription(
-                `${data.cardName} receberá ${dataItem.type} - ${dataItem.name}${"\n"}${"\n"}`
+                `Tentar denovo por :money_with_wings: 500 e :star: 5?${"\n"}${"\n"}`
               )
-              .setImage(`attachment://cardMorph.png`);
+              .setImage(`attachment://morphedCard.png`);
   
             message.channel.send({ embeds: [exampleEmbed], files: [file] }).then((sendMessage) => {
-              sendMessage.react("❌");
+              sendMessage.react("🎲");
               sendMessage.react("✅");
               const filter = (reaction, user) =>
-                ["❌", "✅"].includes(reaction.emoji.name) &&
+                ["🎲", "✅"].includes(reaction.emoji.name) &&
                 user.id === message.author.id;
               const collector = sendMessage.createReactionCollector({
                 filter,
                 max: 1,
-                time: 10000,
+                time: 30000,
               });
   
               collector.on("collect", async (reaction, user) => {
                 if (
-                  reaction.emoji.name === "❌" &&
+                  reaction.emoji.name === "🎲" &&
                   user.id === message.author.id
                 ) {
-                  return sendMessage.edit({
-                    embeds: [exampleEmbed.setColor("#ff0000").setTitle('Operação cancelada!')],
-                  });
-  
+                  Data.findOne(
+                    {
+                      userID: user.id,
+                    },
+                    (err, dataUser) => {
+                      if (err) console.log(err);
+                      console.log(dataUser);
+                      if (!dataUser) {
+                        const newData = new Data({
+                          name: user.username,
+                          userID: user.id,
+                          lb: "all",
+                          money: 0,
+                          star: 0,
+                          daily: 0,
+                        });
+                        newData.save().catch((err) => console.log(err));
+                      }
+                      if (parseInt(dataUser.money) >= 500 && parseInt(dataUser.star) >= 5) {
+                        oldGold = parseInt(dataUser.money);
+                        oldStar = parseInt(dataUser.star);
+                        Data.updateOne(
+                          {
+                            userID: user.id,
+                          },
+                          {
+                            money: oldGold - 500,
+                            star: oldStar - 5
+                          },
+                          function (err, docs) {
+                            if (err) {
+                              console.log(err);
+                            } else {
+                              console.log("Updated Docs : ", docs);
+                            }
+                          }
+                        )} else {
+                          return message.reply('Dinheiro ou estrelas insuficientes para esta ação.')
+                        }
+                      });
+                  return this.cardMorph(cardId, message)
                 }
                 if (
                   reaction.emoji.name === "✅" &&
                   user.id === message.author.id
                 ) {
-  
                   Card.updateOne(
                     {
                       cardID: data.cardID,
                     },
                     {
-                      cardFrame: dataItem.itemID,
-                      framePhoto: dataItem.photo
+                      morphID: morphId
                     },
                     function (err, docs) {
                       if (err) {
@@ -414,15 +467,13 @@ const cardMorph = async function (cardId, itemId, message) {
                       }
                     }
                   );
-                  
                   sendMessage.edit({
                       embeds: [exampleEmbed.setColor("#00ff11").setTitle(`#${aspas}${data.cardID}${aspas} ${data.cardName} foi metamorfado com sucesso `)],
                   }); return 
                 }
               })
             })
-          }
-        })
+         
       }
     })
   }
@@ -582,6 +633,7 @@ function drawMultilineText(ctx, text, opts) {
     // Returns font size
     return fontSize
   }
+module.exports.cardMorph = cardMorph
 module.exports.cardFrame = cardFrame
 module.exports.giveCard = giveCard
 module.exports.searchLastCard = searchLastCard
