@@ -167,7 +167,28 @@ const searchLastCard = (client, message) => {
 
             for (let i = 1; i <= data.cardStars; i++) {
                 cardStarsE += ":star: "
-            } if(data.cardFrame) {
+            }
+            
+            if(data.morphID) {
+              await morph.cardGenerateFrameMorph(data.cardName, data.cardFrom, data.framePhoto, data.morphID)
+              await morph.cardMorphedFinal(data.cardPhoto)
+              cardPhoto = 'morphedCard.png'
+              const file = new MessageAttachment(`./scripts/morphedCard.png`);
+              let cardAttack = data.cardAttack
+              let cardDefense = data.cardDefense
+              let cardIntelligence = data.cardIntelligence
+              const exampleEmbed = new MessageEmbed()
+                  .setColor("#fa5700")
+                  .setAuthor(`${cardCode} owned by ${user.username}`)
+                  .setThumbnail(user.avatarURL())
+                  .addFields({ name: 'Stars', value: cardStarsE }, { name: '\u200b', value: '\u200b', inline: false }, { name: 'Ataque     ', value: `***:crossed_swords: ${cardAttack}***`, inline: true }, { name: 'Defesa     ', value: `***:shield: ${cardDefense}***`, inline: true }, { name: 'Inteligência     ', value: `***:books: ${cardIntelligence}***`, inline: true },)
+                  .setImage('attachment://morphedCard.png')
+                  .setTimestamp()
+                  .setFooter(user.tag, user.avatarURL());
+              return message.reply({ embeds: [exampleEmbed], files: [file] })
+            }
+
+             if(data.cardFrame) {
                 await cardFrame(data.cardName, data.cardFrom, data.cardPhoto, data.framePhoto)
                 cardPhoto = 'framedCard.png'
                 const file = new MessageAttachment(`./scripts/framedCard.png`);

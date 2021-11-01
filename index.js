@@ -42,7 +42,7 @@ for (const file of eventFiles) {
     }
 }
 client.on('messageCreate', async (message) => {
-    if (!message.content.startsWith(prefix.toLowerCase()) || message.author.bot) return;
+    if (!message.content.startsWith(prefix.toUpperCase()) && !message.content.startsWith(prefix.toLowerCase()) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
