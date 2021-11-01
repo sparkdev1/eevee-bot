@@ -168,7 +168,7 @@ const searchLastCard = (client, message) => {
             for (let i = 1; i <= data.cardStars; i++) {
                 cardStarsE += ":star: "
             }
-            
+
             if(data.morphID) {
               await morph.cardGenerateFrameMorph(data.cardName, data.cardFrom, data.framePhoto, data.morphID)
               await morph.cardMorphedFinal(data.cardPhoto)
@@ -228,13 +228,21 @@ const searchLastCard = (client, message) => {
     });
 }
 
-const searchCardCollection = (id, pageNumber = '1', message, keyWord = 0, ) => {
+const searchCardCollection = (id, pageNumber = '1', message, keyWord = 'this is a test') => {
     if (id.match(/\d+/g) !== null && id.match(/\d+/g)[0] > 10000000000 && pageNumber.match(/\d+/g) !== null) {
-        
+      var name = "";
+      var from = "";
+      const sortField = "cardID"
+      if (keyWord) {
+          if (keyWord.substr(0,2) == "a=") from = keyWord.substr(2,keyWord.length);
+          if (keyWord.substr(0,2) == "s=") name = keyWord.substr(2,keyWord.length);   
+      }
         var page = 1;// 10 = page 1, 20 = page 2...
         page = (pageNumber.match(/\d+/g)[0] - 1) * 10
         Card.find({
-            userID: id.match(/\d+/g)[0]
+            userID: id.match(/\d+/g)[0],
+            cardName: { $regex: '.*' + name + '.*' },
+            cardFrom: { $regex: '.*' + from + '.*' },
         }, {}, { skip: page, limit: 10, sort: { cardID: -1 } }, async (err, data) => {
             if (err) console.log(err);
 

@@ -59,6 +59,7 @@ eshop - visualiza a loja${'\n'}${'\n'}
 eshopinfo ou esi - exibe as informações de um item e permite compra-lo (esi 1)${'\n'}${'\n'}
 einventory ou ei - exibe seu inventário ou de alguém${'\n'}${'\n'}
 euse - usa algum item em alguma carta (euse 435 2)${'\n'}${'\n'}
+emorph ou em - muda a cor da borda de alguma carta, a carta deve possuir borda (em 4341)${'\n'}${'\n'}
 ${aspas}`)
     }
 
@@ -226,7 +227,7 @@ ${aspas}`)
     if (command === 'collection' || command === 'c') {
 
 
-        await card.searchCardCollection(args[0] ?? message.author.id, args[1], message, client)
+        await card.searchCardCollection(args[0] ?? message.author.id, args[1], message, args[2])
 
         // Adds the user to the set so that they can't talk for a minute
     }
