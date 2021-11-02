@@ -1,4 +1,4 @@
-const { Client, Collection, Intents, MessageEmbed, MessageAttachment } = require('discord.js');
+const { Client, Collection, Intents, MessageEmbed, MessageAttachment, MessageActionRow, MessageButton } = require('discord.js');
 const fs = require('fs')
 const Card = require('../models/card.js')
 const Data = require("../models/data.js");
@@ -257,8 +257,37 @@ const searchCardCollection = (id, pageNumber = '1', message, keyWord = 'this is 
             data.forEach((element, index, array) => {
                 string.push(element.cardID + ' - ' + element.cardStars + ' - ' + element.cardName + ' - ' + element.cardFrom + '\n')
             })
-            let aspas = "```"
-            message.channel.send(`${aspas} # | ☆ | Nome     |  Anime ${'\n'}${'\n'}${string.join(`\n`)} ${aspas}`);
+            const aspas = "```"
+            const row = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                .setCustomId('left')
+                .setEmoji('⬅️')
+                .setStyle('SECONDARY'),
+                new MessageButton()
+                    .setCustomId('right')
+                    .setEmoji('➡️')
+                    .setStyle('SECONDARY')
+                   
+            );
+            message.channel.send({ content:`${aspas} # | ☆ | Nome     |  Anime ${'\n'}${'\n'}${string.join(`\n`)} ${aspas}`, components: [row]}).then(sendMessage => {
+            const filter = i => i.customId === 'left' || i.customId === 'right' && i.user.id === message.author.id;
+
+            const collector = sendMessage.createMessageComponentCollector({ filter, time: 30000 });
+            
+            collector.on('collect', async i => {
+                if (i.customId === 'left') {
+                  if (page >= 10 ) page = page / 10
+                  searchCardCollection(id, (page - 2).toString(), message, keyWord)
+                  return ``
+                }
+                if (i.customId === 'right') {
+                  if (page >= 10 ) page  = page / 10
+                  searchCardCollection(id, (page + 2).toString(), message, keyWord)
+                  return ``
+                }
+            });
+            })
         });
     } else {
         message.reply('Houve um erro ao buscar');

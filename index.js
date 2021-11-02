@@ -1,6 +1,6 @@
 // Require the necessary discord.js classes
 const fs = require('fs');
-const { Client, Collection, Intents, MessageEmbed, MessageAttachment, ReactionCollector } = require('discord.js');
+const { Client, Collection, Intents, MessageEmbed, MessageAttachment, ReactionCollector, MessageButton, MessageActionRow } = require('discord.js');
 const { token, prefix, mongoConst } = require('./config.json');
 const mongoose = require('mongoose');
 const cardSchema = require('./models/card')
@@ -407,7 +407,7 @@ ${aspas}`)
           });
         });
     }
-
+    
 });
 
 client.login(token);
