@@ -70,10 +70,9 @@ ${aspas}`)
         return (card.searchLastCard(client, message))
     }
 
-    if (command === 'drop' || command === 'd' && !talkedRecently.has(message.author.id)) {
+    if (command === 'drop' || command === 'd') {
         if (talkedRecently.has(message.author.id) && message.author.id != '212640369261674496') {
-            let aspas = "`"
-            message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
+            await player.getPlayerCooldown(message);
             return
         } else {
             if (message.author.id != '212640369261674496') {
@@ -82,7 +81,7 @@ ${aspas}`)
                     setTimeout(() => {
                         // Removes the user from the set after a minute
                         talkedRecently.delete(message.author.id);
-                    }, 180000);
+                    }, 509000);
             try {
                 console.log(`${message.author.tag} is dropping.`)
                 await mal.zeraDrop()
@@ -101,7 +100,7 @@ ${aspas}`)
                     sendMessage.react("2️⃣")
                     sendMessage.react("3️⃣")
                     const filter = (reaction, user) => ["1️⃣", "2️⃣", "3️⃣"].includes(reaction.emoji.name) && user.id == message.author.id && user.id != '889885729273020516';
-                    const collector = sendMessage.createReactionCollector({ filter, max: 4, time: 20000 });
+                    const collector = sendMessage.createReactionCollector({ filter, max: 1, time: 20000 });
                     var today = new Date();
 
                     var date = today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
@@ -207,11 +206,12 @@ ${aspas}`)
                     }, 20000)
                     if (message.author.id != '212640369261674496') {
                     talkedRecently.add(message.author.id);
+                    return player.updatePlayerCooldown(message);
                     }
                     setTimeout(() => {
                         // Removes the user from the set after a minute
                         talkedRecently.delete(message.author.id);
-                    }, 180000);
+                    }, 509000);
                 })
             } catch (e) {
                 console.log(e)
@@ -219,9 +219,9 @@ ${aspas}`)
             }
         }
     } 
-    if (command === 'drop' || command === 'd' && talkedRecently.has(message.author.id)) {
-        let aspas = "`"
-        return message.channel.send(`Espere ${aspas}3${aspas} minutos antes de usar o comando denovo - <@${message.author.id}>`)
+    if (command === 'cd') {
+        await player.getPlayerCooldown(message);
+        return
     }
 
     if (command === 'collection' || command === 'c') {

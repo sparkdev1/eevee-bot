@@ -296,7 +296,7 @@ const searchCardCollection = (id, pageNumber = '1', message, keyWord = 'this is 
 
 const createDropTemplate = async (drop) => {
     const canvas = createCanvas(1900, 1000)
-    registerFont('./custom-fonts/PublicSans-Regular.otf', { family: 'Public Sans' })
+    registerFont('./custom-fonts/Amaranth-Bold.ttf', { family: 'Amaranth' })
     const ctx = canvas.getContext('2d')
 
     ctx.drawImage(await loadImage('images/background2.jpg'), null, null, 1900, 1000)
@@ -304,7 +304,7 @@ const createDropTemplate = async (drop) => {
     ctx.drawImage(await loadImage(drop[0][1].img), 700, 100, 500, 800)
     ctx.drawImage(await loadImage(drop[0][2].img), 1350, 100, 500, 800)
 
-    ctx.font = '70px Public Sans'
+    ctx.font = '70px Amaranth'
     ctx.fillStyle = "#FFFFFF";
 
     var fullName =  drop[0][0].char
@@ -318,9 +318,9 @@ const createDropTemplate = async (drop) => {
     ctx.fillText(fullName, 1400, 80, 400)
 
 
-    ctx.fillText(drop[0][0].title, 50, 980, 500)
-    ctx.fillText(drop[0][1].title, 700, 980, 500)
-    ctx.fillText(drop[0][2].title, 1350, 980, 500)
+    ctx.fillText(drop[0][0].title.substr(0,32), 50, 980, 500)
+    ctx.fillText(drop[0][1].title.substr(0,32), 700, 980, 500)
+    ctx.fillText(drop[0][2].title.substr(0,32), 1350, 980, 500)
 
     const buffer = canvas.toBuffer('image/png')
     fs.writeFileSync(__dirname + '/drop.png', buffer)

@@ -744,6 +744,54 @@ const useItem = async function (cardId, itemId, message) {
   })
 }
 
+const getPlayerCooldown = async function (message) {
+    Data.findOne(
+    {
+      userID: message.author.id,
+    }, (err, data) => {
+      if (err)console.log(err);
+      if (!data) {
+        const newData = new Data({
+          userID: message.author.id,
+          lb: "all",
+          money: 0,
+          star: 0,
+          daily: 0,
+        });
+        newData.save().catch((err) => console.log(err));
+        return
+      }
+      if(data.cooldownDrop) {
+        let aspas = "`";
+        if(Math.abs((data.cooldownDrop - Math.round(new Date().getTime()/1000))) >= 60) {
+          message.channel.send(`Espere ${aspas}${10 - (Math.ceil(Math.abs((data.cooldownDrop - Math.round(new Date().getTime()/1000)))/60))}${aspas} minutos antes de dropar mais cartas - <@${message.author.id}>`)
+        } else {
+          return message.channel.send(`Espere ${aspas}10${aspas} minutos antes de dropar mais cartas - <@${message.author.id}>`)
+        }
+      } else {
+          return message.channel.send(`Espere ${aspas}10${aspas} minutos antes de dropar mais cartas - <@${message.author.id}>`)
+      }
+    })
+}
+
+const updatePlayerCooldown = async function (message) {
+  Data.updateOne(
+    {
+      userID: message.author.id,
+    },
+    {
+      cooldownDrop: Math.round(new Date().getTime()/1000)
+    },
+    function (err, docs) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("Updated Docs : ", docs);
+      }
+    }
+  );
+  return
+}
     // Data.findOneAndUpdate({
     //     userID: player.id
     // }, (err, data) => {
@@ -764,7 +812,9 @@ const useItem = async function (cardId, itemId, message) {
     //         message.reply(`${player.username} tem :moneybag: ${data.money} gold.`)
 
     // })
-    module.exports.multiBurnCards = multiBurnCards
+    module.exports.updatePlayerCooldown = updatePlayerCooldown;
+    module.exports.getPlayerCooldown = getPlayerCooldown;
+    module.exports.multiBurnCards = multiBurnCards;
     module.exports.useItem = useItem;
     module.exports.searchPlayerItems = searchPlayerItems;
     module.exports.showItemInfo = showItemInfo;
