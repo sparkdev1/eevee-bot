@@ -691,6 +691,60 @@ function drawMultilineText(ctx, text, opts) {
     // Returns font size
     return fontSize
   }
+
+const battleTemplate = async function (message, args, client) {
+
+  const canvas = createCanvas(720, 480)
+    registerFont('./custom-fonts/Amaranth-Bold.ttf', { family: 'Amaranth' })
+    const ctx = canvas.getContext('2d')
+    var mention  = await client.users.fetch(args[0].match(/\d+/g)[0]) 
+    ctx.drawImage(await loadImage('images/vs_template.png'), null, null, 720, 480)
+    ctx.  drawImage(await loadImage(message.author.avatarURL().substr(0, message.author.avatarURL().length - 5)), 20, 125, 250, 250)
+    ctx.drawImage(await loadImage(mention.avatarURL().substr(0, mention.avatarURL().length - 5)), 450, 125, 250, 250)
+
+    ctx.font = '70px Amaranth'
+    ctx.fillStyle = "#FFFFFF";
+
+    var fullName =  message.author.username
+    ctx.fillText(fullName, 20, 80, 400)
+
+    var fullName = mention.username
+    ctx.fillText(fullName, 450, 80, 400)
+
+    const buffer = canvas.toBuffer('image/png')
+    fs.writeFileSync(__dirname + '/battleTemplate.png', buffer)
+
+    const file = new MessageAttachment(`./scripts/battleTemplate.png`);
+    const exampleEmbed = new MessageEmbed()
+        .setColor("#ffffff")
+        .setTitle(`${message.author.username} ***está desafiando*** ${mention.username}, ***deseja aceitar o combate?***`)
+        .setImage('attachment://battleTemplate.png')
+    message.reply({ embeds: [exampleEmbed], files: [file] })
+    .then(sendMessage => {
+        sendMessage.react("❌");
+        sendMessage.react("✅");
+        const filter = (reaction, user) =>
+            ["❌", "✅"].includes(reaction.emoji.name) &&
+            user.id === message.author.id;
+        const collector = sendMessage.createReactionCollector({ 
+            filter,
+            max: 1,
+            time: 10000,
+        });
+
+        collector.on("collect", async (reaction, user) => {
+            if (reaction.emoji.name === "❌" && user.id === message.author.id) {
+            sendMessage.edit({ embeds: [exampleEmbed.setColor("#ff0000").setTitle("Batalha Cancelada!")] });
+            return;
+            }
+            if (reaction.emoji.name === "✅" && user.id === message.author.id) {
+            }
+        })
+    })
+}
+
+
+module.exports.battleTemplate = battleTemplate
 module.exports.cardMorph = cardMorph
 module.exports.cardFrame = cardFrame
 module.exports.giveCard = giveCard
