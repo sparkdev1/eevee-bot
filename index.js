@@ -11,7 +11,7 @@ const mal = require('./scripts/mal.js')
 const player = require("./scripts/player.js");
 const { send } = require('process');
 
-const TEST_ENVIORMENT = false;
+
 mongoose.connect(mongoConst, { useNewUrlParser: true, useUnifiedTopology: true })
 cardSchema.findOne({},{},{ sort: { cardID: -1 }},(err, data) => fs.writeFile('./models/id.txt', (data.cardID + 1).toString(), (error) => {
     if (error) throw err;
@@ -46,7 +46,7 @@ client.on('messageCreate', async (message) => {
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const command = args.shift().toLowerCase();
-    if (command === 'help' && TEST_ENVIORMENT === false) {
+    if (command === 'help' && TEST_ENVIORMENT == 'false') {
         let aspas = "```"
         message.reply(`${aspas}eview ou ev - visualiza a última carta ou uma específica (ex: ev 23)${'\n'}${'\n'}
 ebag - visualiza inventário${'\n'}${'\n'}
@@ -63,14 +63,14 @@ emorph ou em - muda a cor da borda de alguma carta, a carta deve possuir borda (
 ${aspas}`)
     }
 
-    if (command === 'view' || command === 'v' && TEST_ENVIORMENT === false) {
+    if (command === 'view' || command === 'v' && TEST_ENVIORMENT == 'false') {
         if (args[0]) {
             return (card.searchSpecificCard(args[0], client, message))
         }
         return (card.searchLastCard(client, message))
     }
 
-    if (command === 'drop' || command === 'd' && TEST_ENVIORMENT === false) {
+    if (command === 'drop' || command === 'd' && TEST_ENVIORMENT == 'false') {
         if (talkedRecently.has(message.author.id) && message.author.id != '212640369261674496') {
             await player.getPlayerCooldown(message);
             return
@@ -219,12 +219,12 @@ ${aspas}`)
             }
         }
     } 
-    if (command === 'cd' && TEST_ENVIORMENT === false) {
+    if (command === 'cd' && TEST_ENVIORMENT == 'false') {
         await player.getPlayerCooldown(message);
         return
     }
 
-    if (command === 'collection' || command === 'c' && TEST_ENVIORMENT === false) {
+    if (command === 'collection' || command === 'c' && TEST_ENVIORMENT == 'false') {
 
 
         await card.searchCardCollection(args[0] ?? message.author.id, args[1], message, args[2])
@@ -233,11 +233,11 @@ ${aspas}`)
     }
 
 
-    if (command === 'bag' && TEST_ENVIORMENT === false) {
+    if (command === 'bag' && TEST_ENVIORMENT == 'false') {
         return await player.playerBalance(args[0], message, client)
     }
 
-    if (command === 'burn' || command === 'b' && TEST_ENVIORMENT === false) {
+    if (command === 'burn' || command === 'b' && TEST_ENVIORMENT == 'false') {
 
 
         if (talkedRecentlyBurn.has(message.author.id)) {
@@ -261,7 +261,7 @@ ${aspas}`)
             talkedRecentlyBurn.delete(message.author.id);
         }, 5000);
     }
-    if (command === 'multiburn' || command === 'mb' && TEST_ENVIORMENT === false) {
+    if (command === 'multiburn' || command === 'mb' && TEST_ENVIORMENT == 'false') {
 
 
         if (talkedRecentlyBurn.has(message.author.id)) {
@@ -286,7 +286,7 @@ ${aspas}`)
             talkedRecentlyBurn.delete(message.author.id);
         }, 10000);
     }
-    if (command === 'give' || command === 'g' && TEST_ENVIORMENT === false) {
+    if (command === 'give' || command === 'g' && TEST_ENVIORMENT == 'false') {
         try {
             card.giveCard(args[0], args[1], message, client)
         } catch (e) {
@@ -295,11 +295,11 @@ ${aspas}`)
         }
     }
 
-    if (command === 'shop' && TEST_ENVIORMENT === false) {
+    if (command === 'shop' && TEST_ENVIORMENT == 'false') {
         player.showShop(args[0] ?? '1', message, client)
     }
 
-    if (command === 'shopinfo' || command === 'si' && TEST_ENVIORMENT === false) {
+    if (command === 'shopinfo' || command === 'si' && TEST_ENVIORMENT == 'false') {
         if (args[0]) {
             try {
                 player.showItemInfo(args[0], message, client)
@@ -312,11 +312,11 @@ ${aspas}`)
         }
     }
 
-    if (command === 'inventory' || command === 'i' && TEST_ENVIORMENT === false) {
+    if (command === 'inventory' || command === 'i' && TEST_ENVIORMENT == 'false') {
         await player.searchPlayerItems(args[0] ?? message.author.id, args[1], args[2], message)
     }
 
-    if (command === 'use' && TEST_ENVIORMENT === false) {
+    if (command === 'use' && TEST_ENVIORMENT == 'false') {
         if (!args[0] || !args[1]) {
             let aspas = "`"
             return message.channel.send(`Os parâmetros estão inválidos, utilize ${aspas}euse códigoDaCarta códigoDoItem${aspas}`)
@@ -328,7 +328,7 @@ ${aspas}`)
             return message.reply('Houve algum erro')
         }
     }
-    if (command === "morph" || command === "m" && TEST_ENVIORMENT === false) {
+    if (command === "morph" || command === "m" && TEST_ENVIORMENT == 'false') {
       if (!args[0]) {
         let aspas = "`";
         return message.channel.send(
@@ -407,7 +407,7 @@ ${aspas}`)
           });
         });
     }
-    if (command === 'battle') {
+    if (command === 'battle' && TEST_ENVIORMENT === true) {
         if (!args[0]){
             return message.reply('Mencione o usuário que deseja batalhar')
         }
