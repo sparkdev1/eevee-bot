@@ -1,7 +1,8 @@
 {
     "clientId": "889885729273020516",
     "guildId": "598976140622692381",
-    "token": "ODg5ODg1NzI5MjczMDIwNTE2.YUnwqw.8lTCtirvzvWpK43lxGditKZb9Sg",
+    "token": "ODg5ODg1NzI5MjczMDIwNTE2.YUnwqw.NUN99OJXpLIVvsvlAPI-EBphp2w",
     "prefix": "e",
-    "mongoConst": "mongodb+srv://spark2x:8U8oLa5BU8XAG72b@cluster0.h4s7e.mongodb.net/eevee?retryWrites=true&w=majority"
+    "mongoConst": "mongodb+srv://spark2x:8U8oLa5BU8XAG72b@cluster0.h4s7e.mongodb.net/eevee?retryWrites=true&w=majority",
+    "TEST_ENVIORMENT": "false"
 }
